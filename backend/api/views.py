@@ -2,8 +2,12 @@ from django.shortcuts import render
 from django.contrib.auth import authenticate
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse, HttpRequest, JsonResponse
+from django.core import serializers
+from django.forms import model_to_dict
+from django.contrib.auth.models import User
 
 
+from typing import Tuple
 from dataclasses import dataclass
 from enum import Enum
 import inspect
@@ -12,43 +16,12 @@ import os
 import jwt
 from datetime import datetime, timedelta
 
-from . import models
-
+from api.models import Form, FormEntry
 
 #Types
-
 class InputType(Enum):
     text = 'text'
     textarea= 'textarea'
-    file = 'file'
-
-@dataclass
-class FormField:
-    header: str
-    details: str
-    input: InputType
-
-    def asdict(self):
-        res = {}
-        res['header'] = self.header
-        res['details'] = self.details
-        res['input'] = self.input.value
-
-        return res
-
-@dataclass
-class Form:
-    title: str
-    fields: list[FormField]
-
-    def asdict(self):
-        res = {}
-        fields_dict = list(map(lambda f: f.asdict(), self.fields))
-        res['fields'] = fields_dict
-        res['title'] = self.title
-
-        return res
-
 
 def index(request):
     return HttpResponse('Welcome to the nanocms api.')
@@ -56,7 +29,6 @@ def index(request):
 @csrf_exempt
 def forms(request: HttpRequest):
     res: dict = {}
-    print('the query string:', request.META['QUERY_STRING'])
 
     def input_to_enum(input_type: str):
         match input_type:
@@ -69,13 +41,6 @@ def forms(request: HttpRequest):
             case _:
                 raise Exception("unsupported input type")
 
-    def json_data_to_form(data: dict):
-        title = body['title']
-        fields = body['fields']
-        fields = list(map(lambda f: FormField(f['header'], f['details'], input_to_enum(f['input'])), fields))
-
-        return Form(title, fields)
-
     match request.method:
         case 'GET':
 
@@ -83,27 +48,42 @@ def forms(request: HttpRequest):
                 'message': 'get response'
             }
         case 'POST':
+            default_form = {
+                "title": "new form",
+                "fields": [],
+            }
+
             body = json.loads(request.body)
+            default_form.update(body)
+            body = default_form
 
-            # NOTE: validate jwt token
-            # jwt_token = body['jwt']
-            #
-            # is_valid_token = validate_token(jwt_token)
-            #
-            # res = {
-            #     'forms list': 'forms list should be here',
-            #     'message': 'post response'
-            # }
+            authorization_header = request.META.get("HTTP_AUTHORIZATION")
 
-            new_form = json_data_to_form(body)
-            form_as_json = json.dumps(new_form.asdict())
+            if authorization_header is None:
+                res = {
+                    'message': 'missing Authorization token'
+                }
+            else:
+                jwt_token = authorization_header.split(" ")[1]
 
-            form = models.Form(data=form_as_json)
-            form.save() 
+                is_valid, decoded_token = validate_token(jwt_token)
 
-            res['data'] = form_as_json
+                if not is_valid:
+                    res = {
+                        'message': 'invalid jwt token'
+                    }
+                else:
+                    title = body['title']
+                    fields = body['fields']
+
+                    author = User.objects.get(username=decoded_token['username'])
+                    new_form = Form(author=author, title=title, data=json.dumps({"fields": fields}))
+                    new_form.save()
+
+                    form_as_dict = model_to_dict(new_form)
+
+                    res['data'] = form_as_dict
         case _:
-            print('unhandled method')
             res = {
                 'message': 'unhandled method'
             }
@@ -126,8 +106,12 @@ def login(request: HttpRequest):
                 password = body['password']
 
                 user = authenticate(username=username, password=password)
+                user = User.objects.get(username=username)
 
                 del body['password']
+
+                payload = model_to_dict(user)
+                del payload['password']
 
                 if user is not None:
                     res['jwt'] = create_token(body)
@@ -158,9 +142,8 @@ def validate_jwt(request: HttpRequest):
             try:
                 body = json.loads(request.body)
 
-                print(body)
                 token = body['jwt']
-                decoded_token = validate_token(token)
+                is_valid, decoded_token = validate_token(token)
 
                 del decoded_token['exp']
 
@@ -189,13 +172,13 @@ def create_token(payload: dict[str, str]) -> str:
     except:
         raise Exception('missing secret key')
 
-def validate_token(token: str):
+def validate_token(token: str) -> Tuple[bool, dict | str]:
     try:
         secret = os.environ['secret_key']
         payload = jwt.decode(token, secret, algorithms=['HS256'])
-        return payload
+        return True, payload
     except jwt.ExpiredSignatureError:
-        return "Token has expired"
+        return False, "Token has expired"
     except jwt.InvalidTokenError:
-        return "Invalid token"
+        return False, "Invalid token"
 

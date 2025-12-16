@@ -7,19 +7,27 @@ import type { Form } from '../types.ts'
 
 export function FormsList() {
     const [forms, set_forms] = useState<Form[]>([])
+    const [is_creating_form, set_is_creating_form] = useState<boolean>(false)
 
-
-
-    async function create_form() {
+    async function create_form(title: string = "new form") {
         let jwt_token = localStorage.getItem("jwt")
 
         if (jwt_token) {
-            let res = await fetch(`${import.meta.env.VITE_API_URL}/form`, {
+            let post_body = {
+                title,
+                fields: []
+            }
+
+            let res = await fetch(`${import.meta.env.VITE_API_URL}/forms`, {
+                body: JSON.stringify(post_body),
                 method: "POST",
                 headers: {
+                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${jwt_token}`
                 }
             })
+
+            console.log(res)
 
             let res_json: Form = await res.json()
             set_forms([...forms, res_json])
@@ -84,7 +92,9 @@ export function FormsList() {
                 <h1 className="text-3xl font-bold">
                     Your forms:
                 </h1>
-                <button className="text-black bg-green-300 my-5 px-3 hover:cursor-pointer">
+                <button 
+                    onClick={() => create_form()}
+                    className="text-black bg-green-300 my-5 px-3 hover:cursor-pointer">
                     new form
                 </button>
             </div>

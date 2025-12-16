@@ -1,6 +1,7 @@
 from django.db.models.query import QuerySet
 from django.test import TestCase, Client
 from django.contrib.auth.models import User
+from django.forms import model_to_dict
 
 from api.models import Form, FormEntry
 
@@ -46,7 +47,11 @@ class Authentication(TestCase):
 class FormTestCase(TestCase):
     c = Client()
 
-    def test_can_get_the_same_object_as_input_and_output(self):
+    def setUp(self):
+        user = User.objects.create_user(username, password=password)
+        user.save()
+
+    def test_can_create_form(self):
         data = {
             "title": "test form",
             "fields": [
@@ -54,11 +59,27 @@ class FormTestCase(TestCase):
             ],
         }
 
-        response = self.c.post("/api/forms", data, "application/json")
-        response = json.loads(response.content)
-        response_data = json.loads(response["data"])
+        login_response = self.c.post(
+            "/api/login",
+            {"username": username, "password": password},
+            "application/json",
+        )
+        payload = json.loads(login_response.content)
 
-        self.assertEqual(response_data, data)
+        response = self.c.post("/api/forms", data, "application/json", headers={
+            "Authorization": "Bearer " + payload["jwt"]
+        })
+        response = json.loads(response.content)
+        response_data = response["data"]
+
+        author = User.objects.get(username=username)
+
+        self.assertEqual(response_data["author"], author.id)
+        self.assertEqual(response_data["title"], data["title"])
+        del data['title']
+        self.assertEqual(json.loads(response_data["data"]), data)
+
+        form_from_db = Form.objects.get(id=response_data['id'])
 
     def test_creates_form_in_db(self):
         data = {
@@ -68,9 +89,20 @@ class FormTestCase(TestCase):
             ],
         }
 
-        self.c.post("/api/forms", data, "application/json")
+        login_response = self.c.post(
+            "/api/login",
+            {"username": username, "password": password},
+            "application/json",
+        )
+        payload = json.loads(login_response.content)
 
-        new_form: QuerySet = Form.objects.all()
-        print(len(new_form))
+        self.c.post("/api/forms", data, "application/json", headers={
+            "Authorization": "Bearer " + payload["jwt"]
+        })
+
+        new_form: QuerySet = Form.objects.first()
+
+        print('the first form', new_form)
+
 
         # self.assertEqual(new_form, data)
