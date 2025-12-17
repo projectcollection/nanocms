@@ -6,7 +6,7 @@ import {
 import { InputType } from '../types.ts'
 import type { Form } from '../types.ts'
 
-export function PublicForm() {
+export function EditForm() {
     const { form_id } = useParams()
 
     const [form, set_form] = useState<Form | null>(null)
@@ -57,12 +57,15 @@ export function PublicForm() {
     // }
 
     return (
-        <div className="w-lg m-auto text-white">
+        <div className="w-lg m-auto">
             <div>
                 <span className="text-3xl font-bold">
                     {form ? form.title : 'new form'}
                 </span>
             </div>
+
+            {/* Field Previews */}
+
             <div className="flex flex-col gap-5 mb-5 pb-5 border-b-1 border-red-400">
                 {fake_data.map((data, idx) => {
 
@@ -101,6 +104,58 @@ export function PublicForm() {
                         </div>
                     )
                 })}
+            </div>
+
+            <div
+                className="flex flex-col align-center"
+            >
+                <h3 className="text-lg font-bold">
+                    new field options
+                </h3>
+                <label>
+                    header:
+                    <input 
+                        type="text"
+                        value={new_field_header}
+                        onChange={e => set_new_field_header(e.target.value)}
+                        className="bg-white text-black block"
+                    />
+                </label>
+                <label>
+                    detail:
+                    <input 
+                        type="text"
+                        value={new_field_detail}
+                        onChange={e => set_new_field_detail(e.target.value)}
+                        className="bg-white text-black block"
+                    />
+                </label>
+                <label>
+                    type:
+                    <select 
+                        value={selected_field_type} 
+                        onChange={(e) => set_selected_field_type(e.target.value)}
+                        className="bg-white text-black block"
+                    >
+                        {Object.entries(InputType.enum).map(entry => {
+                            const [key, value] = entry
+
+                            if (isNaN(parseInt(key))) {
+                                return (
+                                    <option key={key}>
+                                        {key}
+                                    </option>
+                                )
+                            }
+                        })}
+                    </select>
+                </label>
+                <button 
+                    className="text-black bg-green-300 my-5 px-3 hover:cursor-pointer"
+                    onClick={() => add_field()}
+                >
+                    add field
+                </button>
             </div>
         </div>
     )
