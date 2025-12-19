@@ -3,74 +3,132 @@ import {
     useEffect,
     useRef, 
     useState } from "react"
-import { InputType } from '../types.ts'
-import type { Form } from '../types.ts'
+import { FormField } from './index.ts'
+import { Form, InputType } from '../types.ts'
+import type { FormType, InputTypeType } from '../types.ts'
 
 export function EditForm() {
     const { form_id } = useParams()
 
-    const [form, set_form] = useState<Form | null>(null)
-    const [fake_data, set_fake_data] = useState<{ header: string, details: string, input_type: string }[]>([])
+    const [form, set_form] = useState<FormType | null>(null)
+    const [is_edited, set_isedited] = useState<boolean>(false)
+
     const [new_field_header, set_new_field_header] = useState<string>('')
     const [new_field_detail, set_new_field_detail] = useState<string>('')
-    const [selected_field_type, set_selected_field_type] = useState<string>('text')
+    const [selected_field_type, set_selected_field_type] = useState<InputTypeType>('text')
 
     useEffect(() => {
-        //TODO: fetch form based on id
+        async function get_form(id: number) {
+            let jwt_token = localStorage.getItem("jwt")
+
+            if (jwt_token) {
+                let res = await fetch(`${import.meta.env.VITE_API_URL}/forms?form_id=${id}`, {
+                    method: "GET",
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${jwt_token}`
+                    }
+                })
+
+                let res_json = await res.json()
+                let form_json = res_json.data[0]
+                form_json.data = JSON.parse(form_json.data)
+                let form = Form.parse(form_json)
+
+                set_form(form)
+            } else {
+                console.error("jwt token not found")
+            }
+        }
+
+        if (form_id) {
+            get_form(parseInt(form_id))
+        }
 
         return () => { }
     }, [form_id])
 
     function add_field() {
-        set_fake_data([...fake_data, {
-            header: new_field_header,
-            details: new_field_detail,
-            input_type: selected_field_type
-        }])
+        if (form == null) return
+
+        set_form({
+            ...form, data: [...form.data, {
+                header: new_field_header,
+                details: new_field_detail,
+                input_type: selected_field_type
+            }]
+        })
+
+        set_isedited(true)
 
         set_new_field_header("")
         set_new_field_detail("")
         set_selected_field_type("text")
-
-
-        // if (form == null) return
-        //
-        // console.log(form.data)
-        //
-        // set_form({
-        //     ...form, data: [...form.data, {
-        //         header: new_field_header,
-        //         details: new_field_detail,
-        //         input_type: selected_field_type
-        //     }]
-        // })
     }
 
     function remove_field(idx: number) {
-        let current = [...fake_data]
-        current.splice(idx, 1)
-        set_fake_data(current)
+        if (form == null) return
+
+        set_form({
+            ...form,
+            data: [...form.data.slice(0, idx), ...form.data.slice(idx + 1)]
+        })
     }
 
-    // if (form === null) {
-    //     return (<></>)
-    // }
+    async function update_form() {
+        let jwt_token = localStorage.getItem("jwt")
+
+        let put_body = {
+            form_id,
+            data: form
+        }
+
+        if (jwt_token) {
+            let res = await fetch(`${import.meta.env.VITE_API_URL}/forms`, {
+                body: JSON.stringify(put_body),
+                method: "PUT",
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${jwt_token}`
+                }
+            })
+
+            let res_json = await res.json()
+
+            set_isedited(false)
+        } else {
+            console.error("jwt token not found")
+        }
+
+    }
+
+    if (form === null) {
+        return (<></>)
+    }
 
     return (
         <div className="w-lg m-auto">
-            <div>
+            <div className="flex flex-row gap-5 items-center">
                 <span className="text-3xl font-bold">
-                    {form ? form.title : 'new form'}
+                    {form.title}
                 </span>
+                {
+                    is_edited ? 
+                        (<button
+                            onClick={() => update_form()}
+                            className="text-black bg-green-300 my-5 px-3 hover:cursor-pointer"
+                        >
+                            save changes
+                        </button>
+                        ) :
+                        (<></>)
+                }
             </div>
 
             {/* Field Previews */}
 
             <div className="flex flex-col gap-5 mb-5 pb-5 border-b-1 border-red-400">
-                {fake_data.map((data, idx) => {
-
-                    const { header, details, input_type } = data
-
+                {form.data.map((field, idx) => {
                     return (
                         <div key={idx}>
                             <button 
@@ -79,28 +137,7 @@ export function EditForm() {
                             >
                                 remove
                             </button>
-                            <h2>{header}</h2>
-                            <p>{details}</p>
-                            {(() => {
-                                switch (input_type) {
-                                    case InputType.enum.text:
-                                        return (
-                                            <input 
-                                                type={data.input_type} 
-                                                className="w-full bg-white text-black"
-                                                disabled
-                                            />)
-                                    case InputType.enum.textarea:
-                                        return (
-                                            <textarea
-                                                className="w-full bg-white text-black"
-                                                disabled
-                                            />)
-                                    default:
-                                        return <></>
-                                }
-                            })()
-                            }
+                            <FormField {...{ ...field, is_preview: true }} />
                         </div>
                     )
                 })}
@@ -134,7 +171,14 @@ export function EditForm() {
                     type:
                     <select 
                         value={selected_field_type} 
-                        onChange={(e) => set_selected_field_type(e.target.value)}
+                        onChange={(e) => {
+                            try {
+                                let input_type = InputType.parse(e.target.value)
+                                set_selected_field_type(input_type)
+                            } catch (error) {
+                                console.error(error)
+                            }
+                        }}
                         className="bg-white text-black block"
                     >
                         {Object.entries(InputType.enum).map(entry => {
@@ -157,6 +201,6 @@ export function EditForm() {
                     add field
                 </button>
             </div>
-        </div>
+        </div >
     )
 }

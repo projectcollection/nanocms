@@ -18,10 +18,11 @@ from datetime import datetime, timedelta
 
 from api.models import Form, FormEntry
 
-#Types
-class InputType(Enum):
-    text = 'text'
-    textarea= 'textarea'
+def flatten_model_dict(form: dict):
+    fields = form['fields']
+    fields['id'] = form['pk']
+
+    return fields
 
 def index(request):
     return HttpResponse('Welcome to the nanocms api.')
@@ -30,63 +31,227 @@ def index(request):
 def forms(request: HttpRequest):
     res: dict = {}
 
-    def input_to_enum(input_type: str):
-        match input_type:
-            case 'text':
-                return InputType.text
-            case 'textarea':
-                return InputType.textarea
-            case 'file':
-                return InputType.file
-            case _:
-                raise Exception("unsupported input type")
+    authorization_header = request.META.get("HTTP_AUTHORIZATION")
+    is_valid: boolean
+    decoded_token: dict
 
-    match request.method:
-        case 'GET':
+    if authorization_header is None:
+        match request.method:
+            case 'GET':
+                form_id = request.GET.get('form_id')
+                forms_to_return = [Form()]
 
-            res = {
-                'message': 'get response'
-            }
-        case 'POST':
-            default_form = {
-                "title": "new form",
-                "fields": [],
-            }
-
-            body = json.loads(request.body)
-            default_form.update(body)
-            body = default_form
-
-            authorization_header = request.META.get("HTTP_AUTHORIZATION")
-
-            if authorization_header is None:
-                res = {
-                    'message': 'missing Authorization token'
-                }
-            else:
-                jwt_token = authorization_header.split(" ")[1]
-
-                is_valid, decoded_token = validate_token(jwt_token)
-
-                if not is_valid:
-                    res = {
-                        'message': 'invalid jwt token'
-                    }
+                if form_id is not None:
+                    forms_to_return = Form.objects.filter(id=int(form_id))
                 else:
-                    title = body['title']
-                    fields = body['fields']
+                    forms_to_return = Form.objects.filter(author__username=author.username)
 
-                    author = User.objects.get(username=decoded_token['username'])
-                    new_form = Form(author=author, title=title, data=json.dumps({"fields": fields}))
-                    new_form.save()
+                forms = serializers.serialize('json', forms_to_return)
+                forms = json.loads(forms)
 
-                    form_as_dict = model_to_dict(new_form)
+                res = {
+                    "data": list(map(flatten_model_dict,forms))
+                }
 
-                    res['data'] = form_as_dict
-        case _:
-            res = {
-                'message': 'unhandled method'
-            }
+            case _:
+                res = {
+                    'message': 'unhandled method'
+                }
+
+        return JsonResponse(res)
+    else:
+        jwt_token = authorization_header.split(" ")[1]
+        is_valid, decoded_token = validate_token(jwt_token)
+
+
+    if not is_valid:
+        res = {
+            'message': 'invalid jwt token'
+        }
+    else:
+        author = User.objects.get(username=decoded_token['username'])
+
+        match request.method:
+            case 'GET':
+                form_id = request.GET.get('form_id')
+                forms_to_return = [Form()]
+
+                if form_id is not None:
+                    forms_to_return = Form.objects.filter(id=int(form_id))
+                else:
+                    forms_to_return = Form.objects.filter(author__username=author.username)
+
+                forms = serializers.serialize('json', forms_to_return)
+                forms = json.loads(forms)
+
+                def flatten_form(form: dict):
+                    fields = form['fields']
+                    fields['id'] = form['pk']
+
+                    return fields
+
+                res = {
+                    "data": list(map(flatten_form,forms))
+                }
+            case 'POST':
+                default_form = {
+                    "title": "new form",
+                    "fields": [],
+                }
+
+                body = json.loads(request.body)
+                default_form.update(body)
+                body = default_form
+
+                title = body['title']
+                fields = body['fields']
+
+                new_form = Form(author=author, title=title, data=json.dumps(fields))
+                new_form.save()
+
+                form_as_dict = model_to_dict(new_form)
+
+                res['data'] = form_as_dict
+
+            case 'PUT':
+                body = json.loads(request.body)
+
+                id = body['form_id']
+                update_data = body['data']
+
+                form_to_update = Form.objects.get(id=id)
+                if 'title' in update_data:
+                    form_to_update.title = update_data['title']
+                if 'data' in update_data:
+                    form_to_update.data = json.dumps(update_data['data'])
+
+                form_to_update.save()
+                form_as_dict = model_to_dict(form_to_update)
+
+                res['data'] = form_as_dict
+
+            case 'DELETE':
+                body = json.loads(request.body)
+                id = body['form_id']
+
+                try:
+                    Form.objects.filter(id=id).delete()
+
+                    res = {
+                        'message': 'deleted'
+                    }
+                except:
+                    res = {
+                        'message': 'not found'
+                    }
+                    return JsonResponse(res, status=404)
+
+            case _:
+                res = {
+                    'message': 'unhandled method'
+                }
+
+    return JsonResponse(res)
+
+@csrf_exempt
+def form_entry(request: HttpRequest):
+    res: dict = {}
+
+    authorization_header = request.META.get("HTTP_AUTHORIZATION")
+    is_valid: boolean = False
+    decoded_token: dict
+
+    if authorization_header is None:
+        match request.method:
+            case 'POST':
+                body = json.loads(request.body)
+
+                form_id = body['form_id']
+                fields = body['data']
+
+                form = Form.objects.get(id=form_id)
+                new_entry = FormEntry(form_id=form, data=json.dumps(fields))
+                new_entry.save()
+
+                entry_as_dict = model_to_dict(new_entry)
+
+                res['data'] = entry_as_dict
+
+            case _:
+                res = {
+                    'message': 'unhandled method'
+                }
+
+        return JsonResponse(res)
+    else:
+        jwt_token = authorization_header.split(" ")[1]
+        is_valid, decoded_token = validate_token(jwt_token)
+
+
+    if not is_valid:
+        res = {
+            'message': 'invalid jwt token'
+        }
+    else:
+        author = User.objects.get(username=decoded_token['username'])
+
+        match request.method:
+            case 'GET':
+                form_id = request.GET.get('form_id')
+                entry_id = request.GET.get('entry_id')
+                entries_to_return = []
+
+                if form_id is not None:
+                    form = Form.objects.filter(id=form_id)[0]
+                    entries_to_return = FormEntry.objects.filter(form_id=form)
+                elif entry_id is not None:
+                    entries_to_return = Form.objects.filter(id=entry_id)
+                else:
+                    return JsonResponse({ "message": "missing 'form_id' or 'form_entry' query params"}, status=400)
+
+                entries = serializers.serialize('json', entries_to_return)
+                entries = json.loads(entries)
+
+                res = {
+                    "data": list(map(flatten_model_dict,entries))
+                }
+            case 'PUT':
+                body = json.loads(request.body)
+
+                id = body['form_id']
+                update_data = body['data']
+
+                form_to_update = Form.objects.get(id=id)
+                if 'title' in update_data:
+                    form_to_update.title = update_data['title']
+                if 'data' in update_data:
+                    form_to_update.data = json.dumps(update_data['data'])
+
+                form_to_update.save()
+                form_as_dict = model_to_dict(form_to_update)
+
+                res['data'] = form_as_dict
+
+            case 'DELETE':
+                body = json.loads(request.body)
+                id = body['form_id']
+
+                try:
+                    Form.objects.filter(id=id).delete()
+
+                    res = {
+                        'message': 'deleted'
+                    }
+                except:
+                    res = {
+                        'message': 'not found'
+                    }
+                    return JsonResponse(res, status=404)
+
+            case _:
+                res = {
+                    'message': 'unhandled method'
+                }
 
     return JsonResponse(res)
 

@@ -12,8 +12,6 @@ import type { FormField, Form } from '../types.ts'
 
 export function Protected() {
     const navigate = useNavigate()
-    const [forms, set_forms] = useState<Form[]>([
-    ])
 
     useEffect(() => {
         let jwt_token = localStorage.getItem("jwt")

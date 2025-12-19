@@ -3,58 +3,64 @@ import {
     useEffect,
     useRef, 
     useState } from "react"
-import { InputType } from '../types.ts'
-import type { Form } from '../types.ts'
+import { FormField } from './index.ts'
+import { InputType, Form } from '../types.ts'
+import type { FormType } from '../types.ts'
 
 export function PublicForm() {
     const { form_id } = useParams()
+    const [form, set_form] = useState<FormType | null>(null)
 
-    const [form, set_form] = useState<Form | null>(null)
-    const [fake_data, set_fake_data] = useState<{ header: string, details: string, input_type: string }[]>([])
-    const [new_field_header, set_new_field_header] = useState<string>('')
-    const [new_field_detail, set_new_field_detail] = useState<string>('')
-    const [selected_field_type, set_selected_field_type] = useState<string>('text')
+    async function handle_sumbit(form_data: FormData) {
+        let data = [...form_data.entries()].map(entry => entry[1])
+
+        let post_body = {
+            form_id,
+            data
+        }
+
+        let res = await fetch(`${import.meta.env.VITE_API_URL}/forms/entry`, {
+            body: JSON.stringify(post_body),
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+    }
 
     useEffect(() => {
-        //TODO: fetch form based on id
+        async function get_form(id: number) {
+            let jwt_token = localStorage.getItem("jwt")
+
+            if (jwt_token) {
+                let res = await fetch(`${import.meta.env.VITE_API_URL}/forms?form_id=${id}`, {
+                    method: "GET",
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+
+                let res_json = await res.json()
+                let form_json = res_json.data[0]
+                form_json.data = JSON.parse(form_json.data)
+                let form = Form.parse(form_json)
+
+                set_form(form)
+            } else {
+                console.error("jwt token not found")
+            }
+        }
+
+        if (form_id) {
+            get_form(parseInt(form_id))
+        }
 
         return () => { }
     }, [form_id])
 
-    function add_field() {
-        set_fake_data([...fake_data, {
-            header: new_field_header,
-            details: new_field_detail,
-            input_type: selected_field_type
-        }])
-
-        set_new_field_header("")
-        set_new_field_detail("")
-        set_selected_field_type("text")
-
-
-        // if (form == null) return
-        //
-        // console.log(form.data)
-        //
-        // set_form({
-        //     ...form, data: [...form.data, {
-        //         header: new_field_header,
-        //         details: new_field_detail,
-        //         input_type: selected_field_type
-        //     }]
-        // })
+    if (form === null) {
+        return (<></>)
     }
-
-    function remove_field(idx: number) {
-        let current = [...fake_data]
-        current.splice(idx, 1)
-        set_fake_data(current)
-    }
-
-    // if (form === null) {
-    //     return (<></>)
-    // }
 
     return (
         <div className="w-lg m-auto text-white">
@@ -63,44 +69,20 @@ export function PublicForm() {
                     {form ? form.title : 'new form'}
                 </span>
             </div>
-            <div className="flex flex-col gap-5 mb-5 pb-5 border-b-1 border-red-400">
-                {fake_data.map((data, idx) => {
-
-                    const { header, details, input_type } = data
-
-                    return (
-                        <div key={idx}>
-                            <button 
-                                onClick={() => remove_field(idx)}
-                                className="bg-red-400 hover:cursor-pointer"
-                            >
-                                remove
-                            </button>
-                            <h2>{header}</h2>
-                            <p>{details}</p>
-                            {(() => {
-                                switch (input_type) {
-                                    case InputType.enum.text:
-                                        return (
-                                            <input 
-                                                type={data.input_type} 
-                                                className="w-full bg-white text-black"
-                                                disabled
-                                            />)
-                                    case InputType.enum.textarea:
-                                        return (
-                                            <textarea
-                                                className="w-full bg-white text-black"
-                                                disabled
-                                            />)
-                                    default:
-                                        return <></>
-                                }
-                            })()
-                            }
-                        </div>
-                    )
-                })}
+            <div className="flex flex-col gap-5 mb-5 pb-5">
+                <form action={handle_sumbit}>
+                    {form.data.map((field, idx) => {
+                        return (
+                            <FormField {...field} key={idx} />
+                        )
+                    })}
+                    <button
+                        type="submit"
+                        className="text-black bg-green-300 my-5 px-3 hover:cursor-pointer"
+                    >
+                        submit
+                    </button>
+                </form>
             </div>
         </div>
     )

@@ -77,9 +77,278 @@ class FormTestCase(TestCase):
         self.assertEqual(response_data["author"], author.id)
         self.assertEqual(response_data["title"], data["title"])
         del data['title']
-        self.assertEqual(json.loads(response_data["data"]), data)
+        self.assertEqual(json.loads(response_data["data"]), data['fields'])
 
         form_from_db = Form.objects.get(id=response_data['id'])
+
+
+    def test_can_get_all_forms(self):
+        data = {
+            "title": "test form",
+            "fields": [
+                {"header": "name", "details": "your full name", "input": "textarea"}
+            ],
+        }
+
+        login_response = self.c.post(
+            "/api/login",
+            {"username": username, "password": password},
+            "application/json",
+        )
+        payload = json.loads(login_response.content)
+
+        num_of_forms = 6
+        for _ in range(num_of_forms):
+            self.c.post("/api/forms", data, "application/json", headers={
+                "Authorization": "Bearer " + payload["jwt"]
+            })
+
+        author = User.objects.get(username=username)
+        response = self.c.get("/api/forms", headers={
+            "Authorization": "Bearer " + payload["jwt"]
+        })
+        response = json.loads(response.content)
+
+        self.assertEqual(num_of_forms, len(response['data']))
+
+    def test_can_delete_forms(self):
+        data = {
+            "title": "test form",
+            "fields": [
+                {"header": "name", "details": "your full name", "input": "textarea"}
+            ],
+        }
+
+        login_response = self.c.post(
+            "/api/login",
+            {"username": username, "password": password},
+            "application/json",
+        )
+        payload = json.loads(login_response.content)
+
+        num_of_forms = 6
+        forms_to_delete = 4
+        for _ in range(num_of_forms):
+            self.c.post("/api/forms", data, "application/json", headers={
+                "Authorization": "Bearer " + payload["jwt"]
+            })
+
+        author = User.objects.get(username=username)
+        response = self.c.get("/api/forms", headers={
+            "Authorization": "Bearer " + payload["jwt"]
+        })
+        response = json.loads(response.content)
+
+        for form in response['data'][:forms_to_delete]:
+            response = self.c.delete("/api/forms", {
+                "form_id": form['id']
+            }, 
+            "application/json",
+            headers={
+                "Authorization": "Bearer " + payload["jwt"]
+            })
+
+        response = self.c.get("/api/forms", headers={
+            "Authorization": "Bearer " + payload["jwt"]
+        })
+        response = json.loads(response.content)
+
+        self.assertEqual(num_of_forms-forms_to_delete, len(response['data']))
+
+    def test_can_update_forms(self):
+        data = {
+            "title": "test form",
+            "fields": [
+                {"header": "name", "details": "your full name", "input": "textarea"}
+            ],
+        }
+
+        login_response = self.c.post(
+            "/api/login",
+            {"username": username, "password": password},
+            "application/json",
+        )
+        payload = json.loads(login_response.content)
+
+        num_of_forms = 6
+        for _ in range(num_of_forms):
+            self.c.post("/api/forms", data, "application/json", headers={
+                "Authorization": "Bearer " + payload["jwt"]
+            })
+
+        author = User.objects.get(username=username)
+        response = self.c.get("/api/forms", headers={
+            "Authorization": "Bearer " + payload["jwt"]
+        })
+        response = json.loads(response.content)
+
+        for form in response['data']:
+            response = self.c.put("/api/forms", {
+                "form_id": form['id'],
+                "data": {
+                    "title": f"updated title for {form['id']}"
+                }
+            }, 
+            "application/json",
+            headers={
+                "Authorization": "Bearer " + payload["jwt"]
+            })
+
+        response = self.c.get("/api/forms", headers={
+            "Authorization": "Bearer " + payload["jwt"]
+        })
+        response = json.loads(response.content)
+
+        for form in response['data']:
+            self.assertEqual(form['title'], f"updated title for {form['id']}")
+
+    def test_can_get_form_by_id(self):
+        data = {
+            "title": "test form",
+            "fields": [
+                {"header": "name", "details": "your full name", "input": "textarea"}
+            ],
+        }
+
+        login_response = self.c.post(
+            "/api/login",
+            {"username": username, "password": password},
+            "application/json",
+        )
+        payload = json.loads(login_response.content)
+
+        num_of_forms = 6
+        for _ in range(num_of_forms):
+            self.c.post("/api/forms", data, "application/json", headers={
+                "Authorization": "Bearer " + payload["jwt"]
+            })
+
+        author = User.objects.get(username=username)
+        response = self.c.get("/api/forms", headers={
+            "Authorization": "Bearer " + payload["jwt"]
+        })
+        response = json.loads(response.content)
+        forms = response['data']
+
+        form_id_to_get = forms[0]['id']
+
+        response = self.c.get(f"/api/forms?form_id={form_id_to_get}", headers={
+            "Authorization": "Bearer " + payload["jwt"]
+        })
+        response = json.loads(response.content)
+
+        form = response['data'][0]
+
+        self.assertEqual(form['id'], form_id_to_get)
+
+    def test_can_create_entry_for_form(self):
+        data = {
+            "title": "test form",
+            "fields": [
+                {"header": "name", "details": "your full name", "input": "textarea"}
+            ],
+        }
+
+        login_response = self.c.post(
+            "/api/login",
+            {"username": username, "password": password},
+            "application/json",
+        )
+        payload = json.loads(login_response.content)
+
+        num_of_forms = 6
+        for _ in range(num_of_forms):
+            self.c.post("/api/forms", data, "application/json", headers={
+                "Authorization": "Bearer " + payload["jwt"]
+            })
+
+        author = User.objects.get(username=username)
+        response = self.c.get("/api/forms", headers={
+            "Authorization": "Bearer " + payload["jwt"]
+        })
+        response = json.loads(response.content)
+        forms = response['data']
+
+        form_id_to_get = forms[0]['id']
+
+        response = self.c.get(f"/api/forms?form_id={form_id_to_get}", headers={
+            "Authorization": "Bearer " + payload["jwt"]
+        })
+        response = json.loads(response.content)
+
+        form = response['data'][0]
+
+        entry_data = {
+            "form_id": form['id'],
+            "data": ["random name"]
+        }
+
+        response = self.c.post("/api/forms/entry", entry_data, "application/json")
+        response = json.loads(response.content)
+        form_entry = response['data']
+
+        self.assertEqual(form_entry['form_id'], form['id'])
+        self.assertEqual(len(entry_data['data']), len(json.loads(form_entry['data'])))
+
+    def test_can_get_entries_for_form(self):
+        data = {
+            "title": "test form",
+            "fields": [
+                {"header": "name", "details": "your full name", "input": "textarea"}
+            ],
+        }
+
+        login_response = self.c.post(
+            "/api/login",
+            {"username": username, "password": password},
+            "application/json",
+        )
+        payload = json.loads(login_response.content)
+
+        num_of_forms = 1
+        for _ in range(num_of_forms):
+            self.c.post("/api/forms", data, "application/json", headers={
+                "Authorization": "Bearer " + payload["jwt"]
+            })
+
+        author = User.objects.get(username=username)
+        response = self.c.get("/api/forms", headers={
+            "Authorization": "Bearer " + payload["jwt"]
+        })
+        response = json.loads(response.content)
+        forms = response['data']
+
+        form_id_to_get = forms[0]['id']
+
+        response = self.c.get(f"/api/forms?form_id={form_id_to_get}", headers={
+            "Authorization": "Bearer " + payload["jwt"]
+        })
+        response = json.loads(response.content)
+
+        form = response['data'][0]
+
+        entry_data = {
+            "form_id": form['id'],
+            "data": ["random name"]
+        }
+
+        num_of_entries = 5
+        for _ in range(num_of_entries):
+            response = self.c.post("/api/forms/entry", entry_data, "application/json")
+            response = json.loads(response.content)
+            form_entry = response['data']
+
+
+        response = self.c.get(f"/api/forms/entry?form_id={form['id']}", entry_data, "application/json", headers={
+            "Authorization": "Bearer " + payload["jwt"]
+        })
+        response = json.loads(response.content)
+        entries = response['data']
+
+        self.assertEqual(len(entries), num_of_entries)
+
+        for entry in entries:
+            self.assertEqual(entry['form_id'], form['id'])
 
     def test_creates_form_in_db(self):
         data = {
@@ -100,9 +369,6 @@ class FormTestCase(TestCase):
             "Authorization": "Bearer " + payload["jwt"]
         })
 
-        new_form: QuerySet = Form.objects.first()
+        new_form: QuerySet = Form.objects.all()
 
-        print('the first form', new_form)
-
-
-        # self.assertEqual(new_form, data)
+        self.assertEqual(len(list(new_form)), 1)
