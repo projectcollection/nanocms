@@ -1,0 +1,20 @@
+# specified to only use `http` because it creates an error if tunned with ngrok otherwise
+http://:8080 {
+
+    # reroute `/api/*` requests to port :8000
+    handle /api/* {
+        reverse_proxy localhost:8000
+    }
+
+    handle {
+        # defines the root directory for files
+        # should serve the `index.html` at the path `/`
+        root * ./backend/static/dist/
+
+        # serve all other requests the react SPA
+        try_files {path} ./index.html
+
+        # serve all other files in root
+        file_server
+    }
+}
