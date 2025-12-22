@@ -6,11 +6,7 @@ from django.core import serializers
 from django.forms import model_to_dict
 from django.contrib.auth.models import User
 
-
 from typing import Tuple
-from dataclasses import dataclass
-from enum import Enum
-import inspect
 import json
 import os
 import jwt
@@ -30,6 +26,7 @@ def index(request):
 @csrf_exempt
 def forms(request: HttpRequest):
     res: dict = {}
+    status: int = 200
 
     authorization_header = request.META.get("HTTP_AUTHORIZATION")
     is_valid: boolean
@@ -49,25 +46,21 @@ def forms(request: HttpRequest):
                 forms = serializers.serialize('json', forms_to_return)
                 forms = json.loads(forms)
 
-                res = {
-                    "data": list(map(flatten_model_dict,forms))
-                }
+                res['data'] = list(map(flatten_model_dict,forms))
 
             case _:
-                res = {
-                    'message': 'unhandled method'
-                }
+                res['message'] = 'unhandled method'
+                status = 400
 
-        return JsonResponse(res)
+        return JsonResponse(res, status=status)
     else:
         jwt_token = authorization_header.split(" ")[1]
         is_valid, decoded_token = validate_token(jwt_token)
 
 
     if not is_valid:
-        res = {
-            'message': 'invalid jwt token'
-        }
+        res['message'] = 'invalid jwt token'
+        status = 400
     else:
         author = User.objects.get(username=decoded_token['username'])
 
@@ -90,9 +83,7 @@ def forms(request: HttpRequest):
 
                     return fields
 
-                res = {
-                    "data": list(map(flatten_form,forms))
-                }
+                res['data'] = list(map(flatten_form,forms))
             case 'POST':
                 default_form = {
                     "title": "new form",
@@ -136,26 +127,21 @@ def forms(request: HttpRequest):
 
                 try:
                     Form.objects.filter(id=id).delete()
-
-                    res = {
-                        'message': 'deleted'
-                    }
+                    res['message'] = 'deleted'
                 except:
-                    res = {
-                        'message': 'not found'
-                    }
-                    return JsonResponse(res, status=404)
+                    res['message'] = 'not found'
+                    status = 404
 
             case _:
-                res = {
-                    'message': 'unhandled method'
-                }
+                res['message'] = 'unhandled method'
+                status = 400
 
-    return JsonResponse(res)
+    return JsonResponse(res, status=status)
 
 @csrf_exempt
 def form_entry(request: HttpRequest):
     res: dict = {}
+    status: int = 200
 
     authorization_header = request.META.get("HTTP_AUTHORIZATION")
     is_valid: boolean = False
@@ -174,24 +160,21 @@ def form_entry(request: HttpRequest):
                 new_entry.save()
 
                 entry_as_dict = model_to_dict(new_entry)
-
                 res['data'] = entry_as_dict
 
             case _:
-                res = {
-                    'message': 'unhandled method'
-                }
+                res['message'] = 'unhandled method' 
+                status = 400
 
-        return JsonResponse(res)
+        return JsonResponse(res, status=status)
     else:
         jwt_token = authorization_header.split(" ")[1]
         is_valid, decoded_token = validate_token(jwt_token)
 
 
     if not is_valid:
-        res = {
-            'message': 'invalid jwt token'
-        }
+        res['message'] = 'invalid jwt token' 
+        status = 400
     else:
         author = User.objects.get(username=decoded_token['username'])
 
@@ -207,7 +190,8 @@ def form_entry(request: HttpRequest):
                 elif entry_id is not None:
                     entries_to_return = Form.objects.filter(id=entry_id)
                 else:
-                    return JsonResponse({ "message": "missing 'form_id' or 'form_entry' query params"}, status=400)
+                    res['message'] = "missing 'form_id' or 'form_entry' query params"
+                    status = 400
 
                 entries = serializers.serialize('json', entries_to_return)
                 entries = json.loads(entries)
@@ -216,44 +200,18 @@ def form_entry(request: HttpRequest):
                     "data": list(map(flatten_model_dict,entries))
                 }
             case 'PUT':
-                body = json.loads(request.body)
-
-                id = body['form_id']
-                update_data = body['data']
-
-                form_to_update = Form.objects.get(id=id)
-                if 'title' in update_data:
-                    form_to_update.title = update_data['title']
-                if 'data' in update_data:
-                    form_to_update.data = json.dumps(update_data['data'])
-
-                form_to_update.save()
-                form_as_dict = model_to_dict(form_to_update)
-
-                res['data'] = form_as_dict
+                res['message'] = 'unhandled method'
+                status = 400 
 
             case 'DELETE':
-                body = json.loads(request.body)
-                id = body['form_id']
-
-                try:
-                    Form.objects.filter(id=id).delete()
-
-                    res = {
-                        'message': 'deleted'
-                    }
-                except:
-                    res = {
-                        'message': 'not found'
-                    }
-                    return JsonResponse(res, status=404)
+                res['message'] = 'unhandled method'
+                status = 400 
 
             case _:
-                res = {
-                    'message': 'unhandled method'
-                }
+                res['message'] = 'unhandled method'
+                status = 400
 
-    return JsonResponse(res)
+    return JsonResponse(res, status=status)
 
 @csrf_exempt
 def login(request: HttpRequest):
@@ -261,9 +219,6 @@ def login(request: HttpRequest):
     status: int = 200
 
     match request.method:
-        case 'GET':
-            res['message'] = 'get response'
-
         case 'POST':
             try:
                 body = json.loads(request.body)
