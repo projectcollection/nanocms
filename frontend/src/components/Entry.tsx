@@ -77,7 +77,7 @@ export function Entry() {
 
 
     return (
-        <div className="w-screen outline-1 outline-solid outline-red-600">
+        <div className="w-full outline-1 outline-solid outline-red-600">
             <div>
                 <h1 className="text-3xl font-bold">
                     Your forms:

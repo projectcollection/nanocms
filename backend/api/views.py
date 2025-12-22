@@ -25,7 +25,7 @@ def flatten_model_dict(form: dict):
     return fields
 
 def index(request):
-    return HttpResponse('Welcome to the nanocms api.')
+    return render(request, '../static/dist/index.html')
 
 @csrf_exempt
 def forms(request: HttpRequest):

@@ -12,6 +12,7 @@ export function EditForm() {
 
     const [form, set_form] = useState<FormType | null>(null)
     const [is_edited, set_isedited] = useState<boolean>(false)
+    const [is_editing_title, set_is_editing_title] = useState<boolean>(false)
 
     const [new_field_header, set_new_field_header] = useState<string>('')
     const [new_field_detail, set_new_field_detail] = useState<string>('')
@@ -107,16 +108,38 @@ export function EditForm() {
     }
 
     return (
-        <div className="w-lg m-auto">
-            <div className="flex flex-row gap-5 items-center">
-                <span className="text-3xl font-bold">
-                    {form.title}
-                </span>
+        <div className="w-full max-w-md m-auto px-2">
+            <div className="flex flex-row gap-5 items-center mb-5">
+                {is_editing_title ? (
+                    <input 
+                        type="text" value={form.title} autoFocus 
+                        onChange={(e) => {
+                            set_form({
+                                ...form,
+                                title: e.target.value
+                            })
+                        }}
+                        onBlur={() => {
+                            set_is_editing_title(false)
+                            set_isedited(true)
+                        }}
+                        className="w-full bg-white text-black mb-5"
+                    />
+                ) :
+                    (
+                        <span 
+                            className="text-3xl font-bold"
+                            onClick={() => set_is_editing_title(true)}
+                        >
+                            {form.title}
+                        </span>
+                    )
+                }
                 {
-                    is_edited ? 
+                    is_edited && !is_editing_title ? 
                         (<button
                             onClick={() => update_form()}
-                            className="text-black bg-green-300 my-5 px-3 hover:cursor-pointer"
+                            className="text-black bg-green-300 shrink-0 my-5 px-3 hover:cursor-pointer"
                         >
                             save changes
                         </button>
@@ -125,15 +148,13 @@ export function EditForm() {
                 }
             </div>
 
-            {/* Field Previews */}
-
             <div className="flex flex-col gap-5 mb-5 pb-5 border-b-1 border-red-400">
                 {form.data.map((field, idx) => {
                     return (
                         <div key={idx}>
                             <button 
                                 onClick={() => remove_field(idx)}
-                                className="bg-red-400 hover:cursor-pointer"
+                                className="bg-red-400 hover:cursor-pointer px-1"
                             >
                                 remove
                             </button>
@@ -144,18 +165,19 @@ export function EditForm() {
             </div>
 
             <div
-                className="flex flex-col align-center"
+                className="flex flex-col gap-2 align-center"
             >
                 <h3 className="text-lg font-bold">
                     new field options
                 </h3>
+
                 <label>
                     header:
                     <input 
                         type="text"
                         value={new_field_header}
                         onChange={e => set_new_field_header(e.target.value)}
-                        className="bg-white text-black block"
+                        className="w-full bg-white text-black block"
                     />
                 </label>
                 <label>
@@ -164,7 +186,7 @@ export function EditForm() {
                         type="text"
                         value={new_field_detail}
                         onChange={e => set_new_field_detail(e.target.value)}
-                        className="bg-white text-black block"
+                        className="w-full bg-white text-black block"
                     />
                 </label>
                 <label>
@@ -179,7 +201,7 @@ export function EditForm() {
                                 console.error(error)
                             }
                         }}
-                        className="bg-white text-black block"
+                        className="w-full bg-white text-black block"
                     >
                         {Object.entries(InputType.enum).map(entry => {
                             const [key, value] = entry
@@ -195,7 +217,7 @@ export function EditForm() {
                     </select>
                 </label>
                 <button 
-                    className="text-black bg-green-300 my-5 px-3 hover:cursor-pointer"
+                    className="shrink-0 w-fit text-black bg-green-300 my-5 px-3 hover:cursor-pointer"
                     onClick={() => add_field()}
                 >
                     add field

@@ -1,5 +1,5 @@
 import { useFormStatus } from "react-dom"
-import { useNavigate, Outlet } from "react-router"
+import { useNavigate, Outlet, NavLink } from "react-router"
 import {
     useEffect,
     useRef, 
@@ -39,7 +39,14 @@ export function Protected() {
 
 
     return (
-        <div className="text-white">
+        <div className="text-white mx-10 mb-10">
+            <nav>
+                <NavLink to="/forms">
+                    <h1 className="text-2xl font-bold">
+                        nanocms
+                    </h1>
+                </NavLink>
+            </nav>
             <Outlet />
         </div>
     )

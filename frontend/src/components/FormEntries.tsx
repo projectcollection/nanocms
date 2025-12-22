@@ -64,14 +64,14 @@ export function FormEntries() {
     }, [form_id])
 
     return (
-        <div className="w-screen">
+        <div className="w-full mt-10">
             <div>
                 <h1 className="text-3xl font-bold">
                     {form && form.title}
                 </h1>
             </div>
             <div>
-                {form && form.data.length === 0 && (<span className="text-red-500">no fields</span>)}
+                {form && form.data.length === 0 && (<span className="text-red-500">no fields please <Link to={`/forms/${form_id}/edit`} className="text-blue-500">edit</Link></span>)}
                 <table className="table-auto">
                     <thead>
                         <tr>

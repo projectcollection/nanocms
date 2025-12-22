@@ -30,25 +30,19 @@ export function PublicForm() {
 
     useEffect(() => {
         async function get_form(id: number) {
-            let jwt_token = localStorage.getItem("jwt")
+            let res = await fetch(`${import.meta.env.VITE_API_URL}/forms?form_id=${id}`, {
+                method: "GET",
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
 
-            if (jwt_token) {
-                let res = await fetch(`${import.meta.env.VITE_API_URL}/forms?form_id=${id}`, {
-                    method: "GET",
-                    headers: {
-                        'Content-Type': 'application/json',
-                    }
-                })
+            let res_json = await res.json()
+            let form_json = res_json.data[0]
+            form_json.data = JSON.parse(form_json.data)
+            let form = Form.parse(form_json)
 
-                let res_json = await res.json()
-                let form_json = res_json.data[0]
-                form_json.data = JSON.parse(form_json.data)
-                let form = Form.parse(form_json)
-
-                set_form(form)
-            } else {
-                console.error("jwt token not found")
-            }
+            set_form(form)
         }
 
         if (form_id) {
@@ -63,22 +57,25 @@ export function PublicForm() {
     }
 
     return (
-        <div className="w-lg m-auto text-white">
-            <div>
+        <div className="w-screen max-w-md m-auto text-white mt-5 px-2">
+            <div className="mb-5">
                 <span className="text-3xl font-bold">
                     {form ? form.title : 'new form'}
                 </span>
             </div>
             <div className="flex flex-col gap-5 mb-5 pb-5">
+                {form.data.length === 0 && (<span className="text-red-500">no fields</span>)}
                 <form action={handle_sumbit}>
-                    {form.data.map((field, idx) => {
-                        return (
-                            <FormField {...field} key={idx} />
-                        )
-                    })}
+                    <div className="flex flex-col gap-5 mb-5 pb-5">
+                        {form.data.map((field, idx) => {
+                            return (
+                                <FormField {...field} key={idx} />
+                            )
+                        })}
+                    </div>
                     <button
                         type="submit"
-                        className="text-black bg-green-300 my-5 px-3 hover:cursor-pointer"
+                        className="text-black bg-green-300 px-3 hover:cursor-pointer"
                     >
                         submit
                     </button>
