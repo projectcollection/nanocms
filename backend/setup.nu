@@ -6,6 +6,7 @@ use ./scripts.nu
 open .env | from toml | load-env 
 
 activate
+uv pip install -r requirements.txt
 
 # NOTE: need to create "nanocms" db manually
 # podman run -e POSTGRES_PASSWORD=password -p 5432:5432 -d postgres
