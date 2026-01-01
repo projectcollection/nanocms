@@ -72,7 +72,7 @@ def forms(request: HttpRequest):
                 if form_id is not None:
                     forms_to_return = Form.objects.filter(id=int(form_id))
                 else:
-                    forms_to_return = Form.objects.filter(author__username=author.username)
+                    forms_to_return = Form.objects.filter(author__username=author.username).order_by("-updated_at")
 
                 forms = serializers.serialize('json', forms_to_return)
                 forms = json.loads(forms)
@@ -186,7 +186,7 @@ def form_entry(request: HttpRequest):
 
                 if form_id is not None:
                     form = Form.objects.filter(id=form_id)[0]
-                    entries_to_return = FormEntry.objects.filter(form_id=form)
+                    entries_to_return = FormEntry.objects.filter(form_id=form).order_by("-updated_at")
                 elif entry_id is not None:
                     entries_to_return = Form.objects.filter(id=entry_id)
                 else:

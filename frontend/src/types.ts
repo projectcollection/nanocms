@@ -15,15 +15,17 @@ export const Form = z.object({
     title: z.string(),
     published: z.boolean(),
     data: z.array(FormField),
-    deadline: z.nullable(z.iso.date()),
-    created_at: z.nullable(z.iso.date()),
-    updated_at: z.nullable(z.iso.date()),
-    deleted_at: z.nullable(z.iso.date())
+    deadline: z.nullable(z.iso.datetime()),
+    created_at: z.nullable(z.iso.datetime()),
+    updated_at: z.nullable(z.iso.datetime()),
+    deleted_at: z.nullable(z.iso.datetime())
 })
 export type FormType = z.infer<typeof Form>
 
 export const Entry = z.object({
     id: z.number(),
-    data: z.any()
+    data: z.any(),
+    created_at: z.nullable(z.iso.datetime()),
+    updated_at: z.nullable(z.iso.datetime()),
 })
 export type EntryType = z.infer<typeof Entry>
