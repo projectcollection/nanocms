@@ -4,11 +4,10 @@ import {
     useEffect,
     useRef, 
     useState } from "react"
-import { FormsList } from "./index.ts"
+import { FormsList, Logo } from "./index.ts"
 
 import type { Ref, RefObject } from "react"
 import type { FormField, Form } from '../types.ts'
-
 
 export function Protected() {
     const navigate = useNavigate()
@@ -37,14 +36,11 @@ export function Protected() {
         }
     }, [])
 
-
     return (
-        <div className="text-white mx-10 mb-10">
+        <div className="text-white mx-10 m-5">
             <nav>
                 <NavLink to="/forms">
-                    <h1 className="text-2xl font-bold">
-                        nanocms
-                    </h1>
+                    <Logo />
                 </NavLink>
             </nav>
             <Outlet />

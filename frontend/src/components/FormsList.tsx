@@ -39,8 +39,8 @@ export function FormsList() {
         let fields_data_as_json = JSON.parse(form_json.data)
         form_json.data = fields_data_as_json
         let new_form = Form.parse(form_json)
-        
-        set_forms([...forms, new_form])
+
+        set_forms([new_form, ...forms])
     }
 
     async function delete_form(idx: number) {

@@ -76,33 +76,35 @@ export function Login() {
 
 
     return (
-        <div className="w-md m-auto">
-            <h1 className="text-3xl font-bold text-white mb-5">
-                Login
-            </h1>
-            <form ref={form_ref} onSubmit={(e) => {
-                e.preventDefault()
+        <div className="flex flex-col h-screen justify-center w-md m-auto">
+            <div className="flex-shrink">
+                <h1 className="text-3xl font-bold text-white mb-5">
+                    Login
+                </h1>
+                <form ref={form_ref} onSubmit={(e) => {
+                    e.preventDefault()
 
-                if (form_ref != null && form_ref.current != null) {
-                    const form_data = new FormData(form_ref.current)
-                    handle_form_submission(form_data)
-                }
-            }}
-                className="flex flex-col gap-3"
-            >
-                <input 
-                    name="username" placeholder="username" 
-                    className="w-full bg-white text-black block"
-                />
-                <input 
-                    name="password" type="password" placeholder="password" 
-                    className="w-full bg-white text-black block"
-                />
-                <input 
-                    type="submit" value="login" disabled={is_pending} 
-                    className="shrink-0 w-min bg-green-300 px-3 cursor-pointer"
-                />
-            </form>
+                    if (form_ref != null && form_ref.current != null) {
+                        const form_data = new FormData(form_ref.current)
+                        handle_form_submission(form_data)
+                    }
+                }}
+                    className="flex flex-col gap-3"
+                >
+                    <input 
+                        name="username" placeholder="username" 
+                        className="w-full bg-white text-black block"
+                    />
+                    <input 
+                        name="password" type="password" placeholder="password" 
+                        className="w-full bg-white text-black block"
+                    />
+                    <input 
+                        type="submit" value="login" disabled={is_pending} 
+                        className="shrink-0 w-min bg-green-300 px-3 cursor-pointer"
+                    />
+                </form>
+            </div>
         </div>
     )
 }
