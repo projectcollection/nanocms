@@ -1,4 +1,4 @@
-import { Link } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 import {
     useEffect,
     useRef, 
@@ -8,46 +8,52 @@ import { Form } from '../types.ts'
 import type { FormType } from '../types.ts'
 
 export function FormsList() {
+    const navigate = useNavigate()
+
     const [forms, set_forms] = useState<FormType[]>([])
     const [is_creating_form, set_is_creating_form] = useState<boolean>(false)
 
     async function create_form(title: string = "new form") {
         let jwt_token = localStorage.getItem("jwt")
-
-        if (jwt_token) {
-            let post_body = {
-                title,
-                fields: []
-            }
-
-            let res = await fetch(`${import.meta.env.VITE_API_URL}/forms`, {
-                body: JSON.stringify(post_body),
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${jwt_token}`
-                }
-            })
-
-            let form_json = (await res.json()).data
-
-            let fields_data_as_json = JSON.parse(form_json.data)
-            form_json.data = fields_data_as_json
-            let new_form = Form.parse(form_json)
-            
-            set_forms([...forms, new_form])
-        } else {
-            console.error("jwt token not found")
+        if (jwt_token == null) {
+            navigate("/auth/login")
+            return 
         }
+
+        let post_body = {
+            title,
+            fields: []
+        }
+
+        let res = await fetch(`${import.meta.env.VITE_API_URL}/forms`, {
+            body: JSON.stringify(post_body),
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${jwt_token}`
+            }
+        })
+
+        let form_json = (await res.json()).data
+
+        let fields_data_as_json = JSON.parse(form_json.data)
+        form_json.data = fields_data_as_json
+        let new_form = Form.parse(form_json)
+        
+        set_forms([...forms, new_form])
     }
 
     async function delete_form(idx: number) {
         let jwt_token = localStorage.getItem("jwt")
+        if (jwt_token == null) {
+            navigate("/auth/login")
+            return 
+        }
+        
         let form_to_delete = forms[idx]
 
         let confirmed = confirm("confirm form deletion")
-
-        if (confirmed && jwt_token) {
+        if (confirmed) {
             let post_body = {
                 form_id: form_to_delete.id
             }
@@ -74,36 +80,36 @@ export function FormsList() {
     useEffect(() => {
         async function get_forms() {
             let jwt_token = localStorage.getItem("jwt")
-
-            if (jwt_token) {
-                let res = await fetch(`${import.meta.env.VITE_API_URL}/forms`, {
-                    method: "GET",
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${jwt_token}`
-                    }
-                })
-
-                let res_json = await res.json()
-                let form_list = res_json.data.map((form: any) => {
-                    let data_as_json = JSON.parse(form.data)
-                    form.data = data_as_json.fields ? data_as_json.fields : data_as_json
-
-                    let parsed_form: FormType
-                    try {
-                        parsed_form = Form.parse(form)
-
-                        return parsed_form
-                    } catch (err) {
-                        console.error(err)
-                        return 
-                    }
-                })
-
-                set_forms([...forms, ...form_list])
-            } else {
-                console.error("jwt token not found")
+            if (jwt_token == null) {
+                navigate("/auth/login")
+                return 
             }
+
+            let res = await fetch(`${import.meta.env.VITE_API_URL}/forms`, {
+                method: "GET",
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${jwt_token}`
+                }
+            })
+
+            let res_json = await res.json()
+            let form_list = res_json.data.map((form: any) => {
+                let data_as_json = JSON.parse(form.data)
+                form.data = data_as_json.fields ? data_as_json.fields : data_as_json
+
+                let parsed_form: FormType
+                try {
+                    parsed_form = Form.parse(form)
+
+                    return parsed_form
+                } catch (err) {
+                    console.error(err)
+                    return 
+                }
+            })
+
+            set_forms([...forms, ...form_list])
         }
 
         get_forms()

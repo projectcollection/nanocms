@@ -1,4 +1,4 @@
-import { Link, useParams } from 'react-router'
+import { Link, useParams, useNavigate } from 'react-router'
 import {
     useEffect,
     useRef, 
@@ -7,6 +7,8 @@ import { Entry, Form } from '../types.ts'
 import type { FormType, EntryType } from '../types.ts'
 
 export function FormEntries() {
+    const navigate = useNavigate()
+
     const { form_id } = useParams()
     const [form, set_form] = useState<FormType | null>(null)
     const [entries, set_entries] = useState<EntryType[]>([])
@@ -14,6 +16,10 @@ export function FormEntries() {
     useEffect(() => {
         async function get_entries() {
             let jwt_token = localStorage.getItem("jwt")
+            if (jwt_token == null) {
+                navigate('/auth/login')
+                return
+            }
             let res = await fetch(`${import.meta.env.VITE_API_URL}/forms/entry?form_id=${form_id}`, {
                 method: "GET",
                 headers: {
@@ -30,30 +36,30 @@ export function FormEntries() {
 
         get_entries()
         return () => { }
-    }, [])
+    }, [form_id])
 
     useEffect(() => {
         async function get_form(id: number) {
             let jwt_token = localStorage.getItem("jwt")
-
-            if (jwt_token) {
-                let res = await fetch(`${import.meta.env.VITE_API_URL}/forms?form_id=${id}`, {
-                    method: "GET",
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${jwt_token}`
-                    }
-                })
-
-                let res_json = await res.json()
-                let form_json = res_json.data[0]
-                form_json.data = JSON.parse(form_json.data)
-                let form = Form.parse(form_json)
-
-                set_form(form)
-            } else {
-                console.error("jwt token not found")
+            if (jwt_token == null) {
+                navigate('/auth/login')
+                return
             }
+
+            let res = await fetch(`${import.meta.env.VITE_API_URL}/forms?form_id=${id}`, {
+                method: "GET",
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${jwt_token}`
+                }
+            })
+
+            let res_json = await res.json()
+            let form_json = res_json.data[0]
+            form_json.data = JSON.parse(form_json.data)
+            let form = Form.parse(form_json)
+
+            set_form(form)
         }
 
         if (form_id) {
