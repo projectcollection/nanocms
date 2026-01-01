@@ -97,7 +97,7 @@ export function FormEntries() {
 
                             return (
                                 <tr key={`${entry.id} + ${idx}`}>
-                                    <td className="p-2">{entry.id}</td>
+                                    <td className="p-2">{entry.updated_at && (new Date(entry.updated_at).toDateString())}</td>
                                     {entry_data.map((column: string, idx: number) => {
                                         return (
                                             <td 

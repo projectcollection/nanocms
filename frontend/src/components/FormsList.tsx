@@ -133,24 +133,29 @@ export function FormsList() {
                 <ul className="flex flex-col gap-2">
                     {forms.map((form, idx) => {
                         return (
-                            <li key={`${form.id} + ${idx}`} className="flex gap-2">
-                                <Link to={`/forms/${form.id}/edit`}>
-                                    <button className="text-black bg-gray-300 px-3 hover:cursor-pointer" >edit</button>
-                                </Link>
-                                <Link>
-                                    <button 
-                                        className="bg-red-400 px-3 hover:cursor-pointer"
-                                        onClick={() => { delete_form(idx) }}
-                                    >delete</button>
-                                </Link>
-                                <Link to={`/submit/${form.id}`}>
-                                    <button
-                                        className="text-black bg-green-300 px-3 hover:cursor-pointer"
-                                    >share</button>
-                                </Link>
-                                <Link to={`/forms/${form.id}/entries`}>
-                                    <span>{form.title} </span>
-                                </Link>
+                            <li key={`${form.id} + ${idx}`} className="flex gap-2 justify-between">
+                                <div className="flex gap-2">
+                                    <Link to={`/forms/${form.id}/edit`}>
+                                        <button className="text-black bg-gray-300 px-3 hover:cursor-pointer" >edit</button>
+                                    </Link>
+                                    <Link>
+                                        <button 
+                                            className="bg-red-400 px-3 hover:cursor-pointer"
+                                            onClick={() => { delete_form(idx) }}
+                                        >delete</button>
+                                    </Link>
+                                    <Link to={`/submit/${form.id}`}>
+                                        <button
+                                            className="text-black bg-green-300 px-3 hover:cursor-pointer"
+                                        >share</button>
+                                    </Link>
+                                    <Link to={`/forms/${form.id}/entries`}>
+                                        <span>{form.title} </span>
+                                    </Link>
+                                </div>
+                                <span>
+                                    {form.updated_at && (new Date(form.updated_at)).toDateString()}
+                                </span>
                             </li>
                         )
                     })}
