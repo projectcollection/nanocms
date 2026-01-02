@@ -37,3 +37,15 @@ class FormEntry(models.Model):
         self.updated_at = timestamp 
         return super().save(*args, **kwargs)
 
+class AnalyticsEvent(models.Model):
+    VISIT = "VISIT"
+
+    EVENT_TYPE_CHOICES = {
+        VISIT: 'visit'
+    }
+
+    form_id = models.ForeignKey(Form, on_delete=models.CASCADE)
+    event_type = models.CharField(choices=EVENT_TYPE_CHOICES, default=VISIT,)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+

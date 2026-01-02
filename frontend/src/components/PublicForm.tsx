@@ -52,6 +52,22 @@ export function PublicForm() {
         return () => { }
     }, [form_id])
 
+    useEffect(() => {
+        const post_body = {
+            form_id,
+            event_type: "VISIT"
+        }
+
+        fetch(`${import.meta.env.VITE_API_URL}/forms/analytics_event`, {
+            body: JSON.stringify(post_body),
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+
+    }, [])
+
     if (form === null) {
         return (<></>)
     }
@@ -75,7 +91,8 @@ export function PublicForm() {
                     </div>
                     <button
                         type="submit"
-                        className="text-black bg-green-300 px-3 hover:cursor-pointer"
+                        className="text-black bg-green-300 px-3 hover:cursor-pointer disabled:cursor-auto"
+                        disabled={form.data.length === 0}
                     >
                         submit
                     </button>

@@ -12,7 +12,7 @@ import os
 import jwt
 from datetime import datetime, timedelta
 
-from api.models import Form, FormEntry
+from api.models import Form, FormEntry, AnalyticsEvent
 
 def flatten_model_dict(form: dict):
     fields = form['fields']
@@ -207,6 +207,70 @@ def form_entry(request: HttpRequest):
                 res['message'] = 'unhandled method'
                 status = 400 
 
+            case _:
+                res['message'] = 'unhandled method'
+                status = 400
+
+    return JsonResponse(res, status=status)
+
+@csrf_exempt
+def analytics_event(request: HttpRequest):
+    res: dict = {}
+    status: int = 200
+
+    authorization_header = request.META.get("HTTP_AUTHORIZATION")
+    is_valid: boolean = False
+    decoded_token: dict
+
+    if authorization_header is None:
+        match request.method:
+            case 'POST':
+                body = json.loads(request.body)
+
+                form_id = body['form_id']
+                event_type = body['event_type']
+
+                if form_id is None or event_type not in AnalyticsEvent.EVENT_TYPE_CHOICES:
+                    res['message'] = 'missing form_id or unsupported event type'
+                    status = 400
+                else:
+                    form = Form.objects.get(id=form_id)
+                    new_analytics_event = AnalyticsEvent(form_id=form, event_type=event_type)
+                    new_analytics_event.save()
+
+            case _:
+                res['message'] = 'unhandled method' 
+                status = 400
+
+        return JsonResponse(res, status=status)
+    else:
+        jwt_token = authorization_header.split(" ")[1]
+        is_valid, decoded_token = validate_token(jwt_token)
+
+    if not is_valid:
+        res['message'] = 'invalid jwt token' 
+        status = 400
+    else:
+        author = User.objects.get(username=decoded_token['username'])
+
+        match request.method:
+            case 'GET':
+                form_id = request.GET.get('form_id')
+                event_types = request.GET.getlist('event_types')
+                event_count_per_type = []
+
+                if form_id is not None and len(event_types) > 0:
+                    form = Form.objects.filter(id=form_id)[0]
+
+                    for event_type in event_types:
+                        event_count_per_type.append(AnalyticsEvent.objects.filter(form_id=form, event_type=event_type).count())
+                else:
+                    res['message'] = "missing 'form_id' or 'event_types' empty query params"
+                    status = 400
+
+                res = {
+                    "data": event_count_per_type
+                }
             case _:
                 res['message'] = 'unhandled method'
                 status = 400

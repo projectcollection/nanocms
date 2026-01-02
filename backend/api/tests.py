@@ -372,3 +372,43 @@ class FormTestCase(TestCase):
         new_form: QuerySet = Form.objects.all()
 
         self.assertEqual(len(list(new_form)), 1)
+
+    def test_can_create_analytics_event_for_form(self):
+        data = {
+            "title": "test form",
+            "fields": [
+                {"header": "name", "details": "your full name", "input": "textarea"}
+            ],
+        }
+
+        login_response = self.c.post(
+            "/api/login",
+            {"username": username, "password": password},
+            "application/json",
+        )
+        payload = json.loads(login_response.content)
+        jwt = payload['jwt']
+
+
+        new_form_response = self.c.post("/api/forms", data, "application/json", headers={
+            "Authorization": "Bearer " + payload["jwt"]
+        })
+        payload = json.loads(new_form_response.content)
+        form = payload['data']
+        form_id = form['id']
+
+        number_of_events = 50
+        for _ in range(number_of_events):
+            self.c.post("/api/forms/analytics_event", {
+                'form_id': form_id,
+                'event_type': 'VISIT'
+            }, "application/json")
+
+        analytics_event_query = self.c.get(f"/api/forms/analytics_event?form_id={form_id}&event_types=VISIT", headers={
+            "Authorization": "Bearer " + jwt
+        })
+        payload = json.loads(analytics_event_query.content)
+        count_per_event_type = payload['data']
+
+        self.assertEqual(len(count_per_event_type), 1)
+        self.assertEqual(count_per_event_type[0], number_of_events)

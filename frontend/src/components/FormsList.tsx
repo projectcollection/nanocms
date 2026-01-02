@@ -93,6 +93,8 @@ export function FormsList() {
                 }
             })
 
+            if (!res.ok) navigate("/auth/login")
+
             let res_json = await res.json()
             let form_list = res_json.data.map((form: any) => {
                 let data_as_json = JSON.parse(form.data)

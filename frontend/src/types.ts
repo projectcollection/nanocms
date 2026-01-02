@@ -29,3 +29,6 @@ export const Entry = z.object({
     updated_at: z.nullable(z.iso.datetime()),
 })
 export type EntryType = z.infer<typeof Entry>
+
+export const Analytics = z.array(z.number())
+export type AnalyticsType = z.infer<typeof Analytics>
