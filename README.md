@@ -153,3 +153,16 @@ ngrok http 8080
 `ngrok` should output a public URL that can be shared and let other people
 interact with the webapp running locally.
 
+# Screenshots
+
+![home](./screenshots/home_page.png)
+
+![login](./screenshots/login_page.png)
+
+![forms list](./screenshots/forms_list_page.png)
+
+![form entries](./screenshots/form_entries_page.png)
+
+![public form](./screenshots/public_form_page.png)
+
+![edit form](./screenshots/edit_form_page.png)
