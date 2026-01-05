@@ -30,7 +30,7 @@ SECRET_KEY = os.environ['secret_key']
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', 'efffc4bda667.ngrok-free.app']
+ALLOWED_HOSTS = ['localhost', 'f43cb94772a3.ngrok-free.app']
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:5173',
 ]

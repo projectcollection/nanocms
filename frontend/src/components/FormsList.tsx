@@ -152,6 +152,11 @@ export function FormsList() {
                                         >share</button>
                                     </Link>
                                     <Link to={`/forms/${form.id}/entries`}>
+                                        <button
+                                            className="text-black bg-green-300 px-3 hover:cursor-pointer"
+                                        >entries</button>
+                                    </Link>
+                                    <Link to={`/forms/${form.id}/entries`}>
                                         <span>{form.title} </span>
                                     </Link>
                                 </div>

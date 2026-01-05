@@ -120,7 +120,7 @@ npm run dev
 ## deployment
 
 This project is not fully set up for deployment. Instead, I'm using [ngrok](https://ngrok.com/)
-to forward requests from an ngrok enpoint URL to a local port. I could tunnel
+to forward requests from an ngrok endpoint URL to a local port. I could tunnel
 both the django(`:8000`) and the react(`:5173`) dev servers but the free version is
 limited to one at a time.
 
