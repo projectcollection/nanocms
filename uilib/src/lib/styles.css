@@ -1,0 +1,49 @@
+:root {
+    --text-xs: .5rem;
+    --text-sm: .75rem;
+    --text-base: 1rem;
+    --text-md: 1.75rem;
+    --text-lg: 2.25rem;
+
+    --space-xs: calc(var(--text-base) * .2);
+    --space-sm: calc(var(--text-base) * .5);
+    --space: calc(var(--text-base) * 1);
+    --space-md: calc(var(--text-base) * 1.5);
+    --space-lg: calc(var(--text-base) * 2);
+
+    font-size: calc(var(--text-base) + 0.5vw)
+}
+
+:-moz-only-whitespace {
+    border-color: lime;
+}
+
+/* elements */
+
+h2,
+h3 {
+    max-inline-size: 60ch;
+}
+
+h2 {
+    font-size: 2.5rem;
+}
+
+h3 {
+    font-size: 2rem
+}
+
+
+/* utilities - should use tailwind? */
+
+.text\:base {
+    font-size: var(--font-size-base) !important;
+}
+
+.text\:md {
+    font-size: var(--font-size-md) !important;
+}
+
+.text\:lg {
+    font-size: var(--font-size-lg) !important;
+}
