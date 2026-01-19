@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Web Components Preview</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js"
+        integrity="sha384-/TgkGk7p307TH7EXJDuUlgG3Ce1UVolAOFopFekQkkXihi5u/6OCvVKyz1W+idaz"
+        crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="/styles.css" />
+</head>
+
+<body>
+    <main>
+        <h1>My Web Components Preview</h1>
+        <p>Production-ready web components built with Svelte 5 and TypeScript.</p>
+
+        <h2>Custom Element Demo:</h2>
+        <div class="demo-section">
+            <bt-stack>
+                <bt-button>custom button</bt-button>
+                <bt-button>custom button</bt-button>
+                <bt-button>custom button</bt-button>
+                <bt-button>custom button</bt-button>
+                <bt-button>custom button</bt-button>
+                <bt-link href="#">link without href should scream</bt-link>
+            </bt-stack>
+            <p class="info">Component loaded from: <code>my-web-components.es.js</code></p>
+        </div>
+
+        <h2>Component Usage:</h2>
+        <div class="demo-section">
+            <p>Use this component in your HTML:</p>
+            <code>&lt;my-component name="Your Text"&gt;&lt;/my-component&gt;</code>
+            <p class="info">Supports attributes: <code>name</code> (string)</p>
+        </div>
+
+        <h2>Import Methods:</h2>
+        <div class="demo-section">
+            <p><strong>ES Module:</strong></p>
+            <code>import { MyComponent } from './my-web-components.es.js';</code>
+            <p><strong>UMD:</strong></p>
+            <code>&lt;script src="./my-web-components.umd.js"&gt;&lt;/script&gt;</code>
+        </div>
+
+        <h2>Component Status:</h2>
+        <div class="demo-section" id="debug-info">
+            <p class="info">Checking component registration...</p>
+        </div>
+    </main>
+
+    <!-- Load web components library -->
+    <script type="module" src="./uilib.es.js"></script>
+
+    <!-- Component registration check -->
+    <script>
+        setTimeout(() => {
+            const debugEl = document.getElementById('debug-info');
+            const componentClass = customElements.get('bt-button');
+            const myComponentEl = document.querySelector('bt-button');
+
+            if (componentClass) {
+                const elementInfo = myComponentEl ?
+                    `<p class="info">✓ Element in DOM: <code>${myComponentEl.outerHTML.substring(0, 50)}...</code></p>` :
+                    '';
+                debugEl.innerHTML = `
+            <p class="info success">✓ Component registered successfully</p>
+            <p class="info">Custom element: <code>MyComponent</code></p>
+            <p class="info">Tag: <code>&lt;my-component&gt;</code></p>
+            ${elementInfo}
+          `;
+            } else {
+                debugEl.innerHTML = `
+            <p class="info error">✗ Component registration failed</p>
+            <p class="info">Check browser console for errors.</p>
+          `;
+                console.error('my-component failed to register');
+            }
+        }, 500);
+    </script>
+</body>
+
+</html>

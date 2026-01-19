@@ -8,6 +8,7 @@ const config = {
     preprocess: vitePreprocess(),
 
     compilerOptions: {
+        // customElement: true,
         css: 'injected'
     },
 

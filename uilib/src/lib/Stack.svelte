@@ -28,21 +28,14 @@
             return class extends customElementConstructor {
                 constructor() {
                     super();
-                    console.log(
-                        "the shadow root",
-                        super.shadowRoot?.childNodes,
-                    );
                 }
 
                 connectedCallback() {
                     super.connectedCallback();
 
                     const root = this.shadowRoot?.host;
-                    // const root = this.attachShadow({ mode: "open" });
 
-                    console.log(root);
-
-                    // htmx.process(root);
+                    htmx.process(root);
                 }
             };
         },
@@ -51,91 +44,89 @@
 
 <script lang="ts">
     import type { Snippet } from "svelte";
-    import { browser } from "$app/environment";
+    import { identifier_create, selectors_create } from "./helpers.ts";
+
+    const tag = "bt-stack";
 
     interface Props {
         space?: string;
         recursive?: boolean;
         split_after?: number;
         row?: boolean;
-        shadowRoot?: HTMLElement;
+        children?: Snippet;
     }
 
     const {
-        space = "var(--space)",
+        space = "var(--s-1)",
         recursive = true,
-        split_after,
+        split_after = 1,
         row = false,
-        shadowRoot,
+        children,
     }: Props = $props();
 
-    let data_i = $derived(`stack-${space}-${recursive}-${split_after}`);
+    let identifier = $derived(
+        identifier_create(tag, { space, recursive, split_after, row }),
+    );
 
-    function apply_style(data_i: string) {
-        const sroot = shadowRoot || document;
-
-        console.log("the root", sroot);
-        if (browser && !sroot.getElementById(data_i)) {
-            let style_el = sroot.createElement("style");
-            style_el.id = data_i;
-            style_el.innerHTML = `
-                    [data-i="${data_i}"]${recursive ? "" : " >"} * + * {
-                        margin-block-start: ${space};
-                    }
-
-                    ${
-                        split_after
-                            ? `
-                    [data-i="${data_i}"]:only-child {
-                        block-size: 100%;
-                    }
-
-                    [data-i="${data_i}"] > :nth-child(${split_after}) {
-                        margin-block-end: auto;
-                    }`
-                            : ""
-                    }
-
-                    ${
-                        row
-                            ? `
-                    [data-i="${data_i}"] {
-                        flex-direction: row !important;
-                    }`
-                            : ""
-                    }
-                `
-                .replace(/\s\s+/g, " ")
-                .trim();
-            sroot.head.appendChild(style_el);
-        }
-    }
-
-    $effect(() => {
-        apply_style(data_i);
-        return () => {};
-    });
+    let selector = $derived(selectors_create(tag, identifier));
 </script>
 
-<div data-i={data_i}>
-    <slot />
+<svelte:head>
+    {#if document && !document.getElementById(identifier)}
+        {@html `
+    <style id="${identifier}">
+      ${selector.ce}${recursive ? "" : " >"} * + *, ${selector.sv}${recursive ? "" : " >"} * + * {
+        margin-block-start: ${space};
+      }
+      ${selector.ce}, ${selector.sv} {
+        flex-direction: ${row ? "row" : "column"};
+        gap: ${space};
+      }
+
+        ${
+            split_after
+                ? `
+
+      ${selector.ce}:only-child, ${selector.sv}:only-child {
+          block-size: 100%;
+      }
+
+      ${selector.ce} > :nth-child(${split_after}), ${selector.sv} > :nth-child(${split_after}) {
+          margin-block-end: auto;
+      }`
+                : ``
+        }
+
+      ${selector.ce} > * + *, ${selector.sv} > * + * {
+          margin-block-end: ${space};
+      }
+    </style>
+`
+            .replace(/\s\s+/g, "")
+            .trim()}
+    {/if}
+</svelte:head>
+
+<div part={identifier} style:--s1={space}>
+    {#if children}
+        {@render children()}
+    {:else}
+        <svelte:element this={"slot"} />
+    {/if}
 </div>
 
 <style>
-    @import "./styles.css";
-
     :host {
         display: block;
     }
 
-    /* -ref- */
     div {
         display: flex;
-        flex-direction: column;
         justify-content: flex-start;
+        align-items: flex-start;
     }
 
     div > * + * {
-        margin-block-start: var(--space);
+        margin-block-end: var(--s1);
     }
 </style>

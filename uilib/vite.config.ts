@@ -27,8 +27,27 @@ function minifyEs() {
     };
 }
 
-export default defineConfig(({ command }) => {
-    if (command === 'build') {
+// Plugin to copy preview template to dist after build
+function copyPreviewTemplate() {
+    return {
+        name: 'copy-preview-template',
+        writeBundle() {
+            const preview_template = resolve(__dirname, 'preview-index.html');
+            const dist_index = resolve(__dirname, 'dist_wc/index.html');
+            const styles = resolve(__dirname, './src/lib/styles.css');
+            const dist_styles = resolve(__dirname, 'dist_wc/styles.css');
+      
+            if (existsSync(preview_template) && existsSync(styles)) {
+                copyFileSync(preview_template, dist_index);
+                copyFileSync(styles, dist_styles);
+                console.log('✓ Copied preview-index.html to dist_wc/index.html');
+            }
+        }
+    };
+}
+
+export default defineConfig(({ mode }) => {
+    if (mode === 'production') {
         return {
             plugins: [
                 svelte({
@@ -37,13 +56,15 @@ export default defineConfig(({ command }) => {
                     }
                 }),
                 minifyEs(), // extra minification plugin using esbuild
+                copyPreviewTemplate()
             ],
             build: {
                 lib: {
                     // Use the web component registration file as the library entry point
                     entry: resolve(__dirname, 'src/lib/index.ts'),
                     name: 'uilib',
-                    fileName: (format) => `uilib-[hash].${format}.js`,
+                    // fileName: (format) => `uilib-[hash].${format}.js`,
+                    fileName: (format) => `uilib.${format}.js`,
                     // Build both ES and UMD formats
                     formats: ['es', 'umd']
                 },
