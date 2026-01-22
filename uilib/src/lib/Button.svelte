@@ -79,6 +79,7 @@
     <style id="${identifier}">
         ${select.ce}, ${select.sv}  {
             border-radius: .5em;
+            overflow: hidden;
             font-size: var(--text-base);
             border: none;
             padding: ${size_};

@@ -1,17 +1,17 @@
 <script module>
-    import { defineMeta } from "@storybook/addon-svelte-csf";
+    import { defineMeta, Meta, Template } from "@storybook/addon-svelte-csf";
     import { Button } from "../lib/index.ts";
     import { fn } from "storybook/test";
 
     const { Story } = defineMeta({
-        title: "Example/Button",
+        title: "Component/Button",
         component: Button,
+        render: template,
         tags: ["autodocs"],
         argTypes: {
-            backgroundColor: { control: "color" },
             size: {
                 control: { type: "select" },
-                options: ["small", "medium", "large"],
+                options: ["sm", "md", "lg"],
             },
         },
         args: {
@@ -20,10 +20,12 @@
     });
 </script>
 
-<Story name="Primary" args={{}}>button</Story>
+{#snippet template(args)}
+    <Button {...args}>default</Button>
+    <bt-button {...args} data-testid>default</bt-button>
+{/snippet}
 
-<Story name="Secondary" args={{}}>button</Story>
+<Story name="default" autodocs />
 
-<Story name="Large" args={{}}>button</Story>
-
-<Story name="Small" args={{}}>button</Story>
+<Story name="confirm" args={{ confirm: true }} />
+<Story name="warning" args={{ warning: true }} />
