@@ -1,22 +1,27 @@
 <svelte:options
     customElement={{
         tag: "bt-container",
-        shadow: "open",
+        shadow: "none",
         props: {
+            name: {
+                attribute: "name",
+                type: "String",
+                reflect: false,
+            },
             color: {
                 attribute: "color",
                 type: "String",
-                reflect: true,
+                reflect: false,
             },
             purple: {
                 attribute: "purple",
                 type: "Boolean",
-                reflect: true,
+                reflect: false,
             },
             purple_light: {
                 attribute: "purple-light",
                 type: "Boolean",
-                reflect: true,
+                reflect: false,
             },
         },
         extend: (customElementConstructor) => {
@@ -39,25 +44,31 @@
 
 <script lang="ts">
     import type { Snippet } from "svelte";
-    import { selectors_create, identifier_create } from "./helpers.ts";
+    import { identifier_create, selectors_create } from "$lib/helpers.ts";
 
     const tag = "bt-container";
 
     interface Props {
+        name?: string;
         color?: string;
         purple?: boolean;
         purple_light?: boolean;
         children?: Snippet;
     }
 
-    const { color, purple, purple_light, children }: Props = $props();
+    const { name, color, purple, purple_light, children }: Props = $props();
 
     let identifier = $derived(
-        identifier_create(tag, { color, purple, purple_light }),
+        identifier_create(tag, { name, color, purple, purple_light }),
     );
 
-    let select = $derived(selectors_create(tag, identifier));
-    // ${purple_light ? "var(--color-white)" : "inherit"}
+    let selector = $derived(selectors_create(tag, identifier));
+
+    $effect(() => {
+        if ($host()) {
+            $host().dataset.i = identifier;
+        }
+    });
 </script>
 
 <svelte:head>
@@ -65,9 +76,12 @@
     {#if document && !document.getElementById(identifier)}
         {@html `
     <style id="${identifier}">
-        ${select.ce}, ${select.sv}  {
+        ${selector.nor}  {
+            display: block;
             background-color: ${color ? color : purple ? "var(--color-purple)" : purple_light ? "var(--color-purple-light)" : "inherit"};
             padding: var(--text-sm);
+            container-name: ${name};
+            container-type: inline-size;
         }
     </style>
 `
@@ -76,17 +90,8 @@
     {/if}
 </svelte:head>
 
-<div part={identifier}>
-    {#if children}
+{#if children}
+    <div data-i={identifier}>
         {@render children()}
-    {:else}
-        <svelte:element this={"slot"} />
-    {/if}
-</div>
-
-<!-- reserved for static styles -->
-<style>
-    :host {
-        display: block;
-    }
-</style>
+    </div>
+{/if}

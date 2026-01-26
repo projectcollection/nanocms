@@ -60,7 +60,7 @@
 
 <script lang="ts">
     import type { Snippet } from "svelte";
-    import { selectors_create, identifier_create } from "./helpers.ts";
+    import { identifier_create, selectors_create } from "./helpers.ts";
 
     const tag = "bt-link";
     const underline_height = "calc(var(--text-base) * .2)";
@@ -79,7 +79,7 @@
     }
 
     const {
-        href,
+        href = "https://google.com",
         title,
         size = "var(--text-base)",
         bold = false,
@@ -90,11 +90,6 @@
         static_ = false,
         children,
     }: Props = $props();
-
-    if (!href) {
-        // should this be an alert instead? to make sure it is used properly
-        console.error("href missing");
-    }
 
     let identifier = $derived(
         identifier_create(tag, {
@@ -107,7 +102,20 @@
             static_,
         }),
     );
-    let select = $derived(selectors_create(tag, identifier));
+    let selector = $derived(selectors_create(tag, identifier));
+
+    $effect(() => {
+        if (!href) {
+            // should this be an alert instead? to make sure it is used properly
+            console.error("href missing");
+        }
+    });
+
+    $effect(() => {
+        if ($host()) {
+            $host().dataset.i = identifier;
+        }
+    });
 </script>
 
 <svelte:head>
@@ -115,7 +123,7 @@
     {#if document && !document.getElementById(identifier)}
         {@html `
     <style id="${identifier}">
-        ${select.ce}, ${select.sv}  {
+        ${selector.nor}, ${selector.ce}  {
             color: ${color};
             display: inline-block;
             font-size: ${size};
@@ -131,7 +139,7 @@
             transition: background-size .2s ease-out;
         }
 
-        ${select.ce}:hover, ${select.sv}:hover {
+        ${selector.nor}:hover, ${selector.ce}:hover  {
             cursor: pointer;
             text-decoration: ${(underline && animated) || static_ ? "" : "underline"};
 
@@ -151,17 +159,12 @@
     {/if}
 </svelte:head>
 
-<a {href} {title} part={identifier}>
-    {#if children}
+{#if children}
+    <a {href} {title} data-i={identifier}>
         {@render children()}
-    {:else}
-        <svelte:element this={"slot"} />
-    {/if}
-</a>
-
-<!-- reserved for static styles -->
-<style>
-    :host {
-        display: inline-block;
-    }
-</style>
+    </a>
+{:else}
+    <a {href} {title} part={identifier}>
+        <svelte:element this="slot" />
+    </a>
+{/if}

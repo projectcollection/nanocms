@@ -38,7 +38,7 @@
 
 <script lang="ts">
     import type { Snippet } from "svelte";
-    import { selectors_create, identifier_create } from "./helpers.ts";
+    import { identifier_create, selectors_create } from "./helpers.ts";
 
     const tag = "bt-button";
 
@@ -55,7 +55,7 @@
     let identifier = $derived(
         identifier_create(tag, { confirm, warning, size }),
     );
-    let select = $derived(selectors_create(tag, identifier));
+    const selector = $derived(selectors_create(tag, identifier));
 
     let size_ = $derived(
         (() => {
@@ -71,13 +71,17 @@
             }
         })(),
     );
+
+    //TODO: reeavaluate: this component should always return a button element,
+    //reconsider if that is not possible to do as a web component or vanilla
+    //svelte component, should make it a purely design thing?
 </script>
 
 <svelte:head>
     {#if document && !document.getElementById(identifier)}
         {@html `
     <style id="${identifier}">
-        ${select.ce}, ${select.sv}  {
+        ${selector.nor}, ${selector.ce}  {
             border-radius: .5em;
             overflow: hidden;
             font-size: var(--text-base);
@@ -89,7 +93,7 @@
         }
 
 
-        ${select.ce}:hover, ${select.sv}:hover  {
+        ${selector.nor}:hover, ${selector.ce}:hover  {
             background-color: ${confirm ? "var(--color-confirm-light)" : warning ? "var(--color-warning-light)" : "var(--color-blue-light)"};
 
             box-shadow: 0px 0px .4em -.4em ${confirm ? "var(--color-confirm-light)" : warning ? "var(--color-warning-light)" : "var(--color-blue-light)"};
@@ -101,20 +105,21 @@
     {/if}
 </svelte:head>
 
-<button part={identifier}>
-    {#if children}
+{#if children}
+    <button data-i={identifier}>
         {@render children()}
-    {:else}
+    </button>
+{:else}
+    <button part={identifier}>
         <svelte:element this={"slot"} />
-    {/if}
-</button>
+    </button>
+{/if}
 
 <style>
     :host,
     button {
         display: inline-block;
         max-width: fit-content;
-        <!-- overflow: hidden; -->
     }
 
     button:hover {

@@ -23,7 +23,7 @@
 
         <div>div</div>
     </Stack>
-    <bt-stack {...args} data-testid>
+    <bt-stack {...args}>
         <div>div</div>
 
         <div>div</div>
@@ -33,5 +33,4 @@
 {/snippet}
 
 <Story name="default" autodocs />
-
-<Story name="row" args={{ row: true }} />
+<Story name="split after 1" args={{ split_after: 1, height: "50vh" }} />

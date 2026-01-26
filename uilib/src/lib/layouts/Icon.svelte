@@ -1,7 +1,7 @@
 <svelte:options
     customElement={{
         tag: "bt-icon",
-        shadow: "open",
+        shadow: "none",
         props: {
             size: {
                 attribute: "size",
@@ -36,29 +36,24 @@
 
 <script lang="ts">
     import type { Snippet } from "svelte";
-    import { selectors_create, identifier_create } from "./helpers.ts";
+    import { identifier_create, selectors_create } from "$lib/helpers.ts";
 
     const tag = "bt-icon";
 
     interface Props {
-        size?: string;
-        sm?: boolean;
-        lg?: boolean;
         children?: Snippet;
     }
 
-    const { size = "var(--text-base)", sm, lg, children }: Props = $props();
+    const { children }: Props = $props();
 
-    let identifier = $derived(identifier_create(tag, { size, sm, lg }));
-    let select = $derived(selectors_create(tag, identifier));
+    let identifier = $derived(identifier_create(tag, {}));
+    let selector = $derived(selectors_create(tag, identifier));
 
-    let size_ = $derived(
-        (() => {
-            if (sm) return "var(--text-sm)";
-            if (lg) return "var(--text-lg)";
-            return size;
-        })(),
-    );
+    $effect(() => {
+        if ($host()) {
+            $host().dataset.i = identifier;
+        }
+    });
 </script>
 
 <svelte:head>
@@ -66,9 +61,21 @@
     {#if document && !document.getElementById(identifier)}
         {@html `
     <style id="${identifier}">
-        ${select.ce}, ${select.sv}  {
-            width: ${size_};
-            height: ${size_};
+        ${selector.nor}  {
+            display: inline-flex;
+            align-items: baseline;
+            font-size: inherit;
+        }
+
+        ${selector.nor} > .icon {
+            width: 0.75em;
+            width: 1cap;
+            height: 0.75em;
+            height: 1cap;
+        }
+
+        ${selector.nor} > .icon {
+            margin-inline-end: 1rem;
         }
     </style>
 `
@@ -77,18 +84,8 @@
     {/if}
 </svelte:head>
 
-<div part={identifier}>
-    {#if children}
+{#if children}
+    <span data-i={identifier}>
         {@render children()}
-    {:else}
-        <svelte:element this={"slot"} />
-    {/if}
-</div>
-
-<!-- reserved for static styles -->
-<style>
-    :host,
-    div {
-        display: inline-block;
-    }
-</style>
+    </span>
+{/if}

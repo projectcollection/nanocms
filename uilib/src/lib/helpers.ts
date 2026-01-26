@@ -1,7 +1,7 @@
 export function selectors_create(tag: string, identifier: string) {
     return {
-        ce: `${tag}::part(${identifier})`, 
-        sv: `[part=${identifier}]`
+        nor: `[data-i=${identifier}]`,
+        ce: `${tag}::part(${identifier})`
     }
 }
 

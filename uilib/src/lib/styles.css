@@ -22,6 +22,8 @@
     --text-md: 1.3rem;
     --text-lg: 1.75rem;
 
+    --border-thin: .2rem;
+
     --text-weight-md: 600;
 
     --text-height-base: 1;
@@ -48,39 +50,16 @@
     font-size: calc(var(--text-base) + 0.5vw)
 }
 
-* {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+main,
+p {
     max-inline-size: var(--measure);
 }
-
-html,
-body,
-div,
-header,
-nav,
-main,
-footer {
-    max-inline-size: none;
-}
-
-:-moz-only-whitespace {
-    border-color: lime;
-}
-
-/* elements */
-
-h2,
-h3 {
-    max-inline-size: 60ch;
-}
-
-h2 {
-    font-size: 2.5rem;
-}
-
-h3 {
-    font-size: 2rem
-}
-
 
 /* utilities - should use tailwind? */
 

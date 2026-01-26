@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { Button, Stack, Link, Container, Icon } from "$lib/index.js";
+    import { Button, Stack, Link, Container, Icon, Box } from "$lib/index.js";
     import "$lib/styles.css";
     import house_svg from "$lib/house.svg";
 </script>
@@ -63,6 +63,13 @@
             <bt-icon sm><img src={house_svg} /></bt-icon>
             <bt-icon><img src={house_svg} /></bt-icon>
             <bt-icon lg><img src={house_svg} /></bt-icon>
+        </div>
+
+        <div>
+            <span>boxes</span>
+            <bt-box>
+                <p>random item in the box</p>
+            </bt-box>
         </div>
 
         <div>
@@ -222,7 +229,6 @@
                     <Button>button</Button>
                     <Button>button</Button>
                     <Button>button</Button>
-                    <Button>button</Button>
                 </Stack>
             </div>
         </div>
@@ -246,6 +252,13 @@
             border: 1px solid black;
             padding: 1rem;
             margin: 1rem 0 1rem 0;
+        }
+
+        & .no-style {
+            border: none;
+            outline: 1px solid black;
+            padding: 0;
+            margin: 0;
         }
     }
 </style>
