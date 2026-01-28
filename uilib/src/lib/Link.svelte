@@ -165,6 +165,6 @@
     </a>
 {:else}
     <a {href} {title} part={identifier}>
-        <svelte:element this="slot" />
+        <svelte:element this={"slot"} />
     </a>
 {/if}

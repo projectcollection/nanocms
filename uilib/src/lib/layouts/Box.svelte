@@ -48,7 +48,7 @@
                 connectedCallback() {
                     super.connectedCallback();
 
-                    const root = this.shadowRoot?.host;
+                    const root = this.shadowRoot?.host || this;
 
                     htmx.process(root);
                 }
@@ -59,7 +59,7 @@
 
 <script lang="ts">
     import type { Snippet } from "svelte";
-    import { identifier_create, selectors_create } from "$lib/helpers.ts";
+    import { identifier_create, selectors_create } from "../helpers.ts";
 
     const tag = "bt-box";
 
@@ -114,17 +114,18 @@
     <style id="${identifier}">
       ${selector.nor} {
         display: block;
-        padding: ${p0 ? "var(--s2)" : p1 ? "var(--s3)" : "var(--s-1)"};
+        padding: ${p0 ? "0" : p1 ? "var(--s3)" : "var(--s-1)"};
         border: ${b0 ? "var(--border-thin)" : b1 ? "var(--border-thin)" : "var(--border-thin)"} solid;
         ${b0 || b1 ? "border-color: black" : "border: none"};
         ${purple ? "color: var(--color-white);" : "color: var(--color-black);"}
-        ${
+        background-color: ${
             !hover
-                ? `background-color: ${purple ? "var(--color-purple)" : bg_color ? bg_color : ""};`
-                : ""
-        }
+                ? `${purple ? "var(--color-purple)" : bg_color ? bg_color : "var(--color-white)"}`
+                : "var(--color-white)"
+        };
         border-radius: ${rounded ? ".5em" : "unset"};
         transition: background-color .1s ease-in, box-shadow .1s ease-in;
+        overflow: hidden;
       }
         
       ${hover ? `${selector.nor}:hover {background-color: ${purple ? "var(--color-purple)" : bg_color ? bg_color : ""};}` : ""}

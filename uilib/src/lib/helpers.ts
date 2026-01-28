@@ -1,3 +1,5 @@
+// import short_hash from 'shorthash2'
+
 export function selectors_create(tag: string, identifier: string) {
     return {
         nor: `[data-i=${identifier}]`,
@@ -6,6 +8,9 @@ export function selectors_create(tag: string, identifier: string) {
 }
 
 export function identifier_create(tag: string, props: {}) {
-    let id = `${tag}-`.concat(Object.entries(props).map(v => String(v[1])))
+    let stringified_keys = "".concat(Object.entries(props).map(v => String(v[1])))
+    // let hash = short_hash(stringified_keys)
+    let id = `${tag}-${stringified_keys}`
     return id.replace(/[\(\),]+/g, "")
+    // return id
 }

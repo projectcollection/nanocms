@@ -37,9 +37,13 @@
 
     --color-black: black;
     --color-white: white;
+    --color-white-off: #f2f2f2;
+    --color-purple-dark: #190e21;
     --color-purple: #2f1c3d;
+    --color-purple-medium: #8837ef;
     --color-purple-light: #f3eef9;
     --color-yellow: #fabe21;
+    --color-yellow-pale: #fbd05f;
 
     --color-blue-light: #e1f1f5;
     --color-confirm: green;

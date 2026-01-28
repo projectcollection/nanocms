@@ -1,0 +1,10 @@
+<svg width="60" height="60" viewBox="0 0 60 60" fill="none">
+  <path fill-rule="evenodd" clip-rule="evenodd" d="M48 2C53.5228 2 58 6.70101 58 12.5V33.5C58 39.299 53.5228 44 48 44H28.933L14 58V44H12C6.47715 44 2 39.299 2 33.5V12.5C2 6.70101 6.47715 2 12 2H48Z" stroke="#2F1C3D" stroke-width="3" stroke-linejoin="round"></path>
+  <path d="M13 11H47" stroke="#3F9FB5" stroke-width="3" stroke-linecap="round"></path>
+  <path d="M43 34V20" stroke="#2F1C3D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path>
+  <path d="M39 22L43 20" stroke="#2F1C3D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path>
+  <path d="M33 34V20" stroke="#2F1C3D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path>
+  <path d="M29 22L33 20" stroke="#2F1C3D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path>
+  <path d="M20.5 27C22.433 27 24 25.433 24 23.5C24 21.567 22.433 20 20.5 20C18.567 20 17 21.567 17 23.5" stroke="#2F1C3D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path>
+  <path d="M17 30.5C17 32.433 18.567 34 20.5 34C22.433 34 24 32.433 24 30.5C24 28.567 22.433 27 20.5 27" stroke="#2F1C3D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>

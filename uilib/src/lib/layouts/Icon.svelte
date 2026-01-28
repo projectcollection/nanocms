@@ -25,7 +25,7 @@
                 connectedCallback() {
                     super.connectedCallback();
 
-                    const root = this.shadowRoot?.host;
+                    const root = this.shadowRoot?.host || this;
 
                     htmx.process(root);
                 }
@@ -36,7 +36,7 @@
 
 <script lang="ts">
     import type { Snippet } from "svelte";
-    import { identifier_create, selectors_create } from "$lib/helpers.ts";
+    import { identifier_create, selectors_create } from "../helpers.ts";
 
     const tag = "bt-icon";
 

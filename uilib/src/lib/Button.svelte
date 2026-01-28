@@ -6,17 +6,27 @@
             confirm: {
                 attribute: "confirm",
                 type: "Boolean",
-                reflect: true,
+                reflect: false,
             },
             warning: {
                 attribute: "warning",
                 type: "Boolean",
-                reflect: true,
+                reflect: false,
             },
             size: {
                 attribute: "size",
                 type: "String",
-                reflect: true,
+                reflect: false,
+            },
+            bg_color: {
+                attribute: "bg-color",
+                type: "String",
+                reflect: false,
+            },
+            font_size: {
+                attribute: "font-size",
+                type: "String",
+                reflect: false,
             },
         },
         extend: (customElementConstructor) => {
@@ -45,21 +55,41 @@
     interface Props {
         confirm?: boolean;
         warning?: boolean;
-        size?: "sm" | "md" | "lg";
+        rounded?: boolean;
+        size?: "xs" | "sm" | "md" | "lg";
+        bg_color?: string;
+        font_size?: string;
         onclick?: () => void;
         children?: Snippet;
     }
 
-    const { confirm, warning, size = "sm", children }: Props = $props();
+    const {
+        confirm,
+        warning,
+        rounded,
+        size = "sm",
+        bg_color,
+        font_size,
+        children,
+    }: Props = $props();
 
     let identifier = $derived(
-        identifier_create(tag, { confirm, warning, size }),
+        identifier_create(tag, {
+            confirm,
+            warning,
+            rounded,
+            size,
+            bg_color,
+            font_size,
+        }),
     );
     const selector = $derived(selectors_create(tag, identifier));
 
     let size_ = $derived(
         (() => {
             switch (size) {
+                case "xs":
+                    return "var(--s-3)";
                 case "sm":
                     return "var(--s-1)";
                 case "md":
@@ -82,12 +112,12 @@
         {@html `
     <style id="${identifier}">
         ${selector.nor}, ${selector.ce}  {
-            border-radius: .5em;
+            border-radius: ${rounded ? ".5em" : "unset"};
             overflow: hidden;
-            font-size: var(--text-base);
+            font-size: ${font_size ? font_size : "var(--text-base)"};
             border: none;
             padding: ${size_};
-            background-color: ${confirm ? "var(--color-confirm)" : warning ? "var(--color-warning)" : "var(--color-white)"};
+            background-color: ${confirm ? "var(--color-confirm)" : warning ? "var(--color-warning)" : bg_color ? bg_color : "var(--color-white)"};
             color: ${confirm ? "var(--color-white)" : warning ? "var(--color-white)" : "var(--color-black)"};
             transition: background-color .1s ease-in, box-shadow .1s ease-in;
         }
