@@ -33,6 +33,11 @@
                 type: "Boolean",
                 reflect: false,
             },
+            purple: {
+                attribute: "purple",
+                type: "Boolean",
+                reflect: false,
+            },
             bg_color: {
                 attribute: "bg-color",
                 type: "String",
@@ -117,10 +122,10 @@
         padding: ${p0 ? "0" : p1 ? "var(--s3)" : "var(--s-1)"};
         border: ${b0 ? "var(--border-thin)" : b1 ? "var(--border-thin)" : "var(--border-thin)"} solid;
         ${b0 || b1 ? "border-color: black" : "border: none"};
-        ${purple ? "color: var(--color-white);" : "color: var(--color-black);"}
+        ${purple ? "color: var(--color-white);" : "inherit;"}
         background-color: ${
             !hover
-                ? `${purple ? "var(--color-purple)" : bg_color ? bg_color : "var(--color-white)"}`
+                ? `${bg_color ? bg_color : purple ? "var(--color-purple)" : "var(--color-white)"}`
                 : "var(--color-white)"
         };
         border-radius: ${rounded ? ".5em" : "unset"};

@@ -108,7 +108,7 @@ export function EditForm() {
     }
 
     return (
-        <div className="w-full max-w-md m-auto px-2">
+        <div >
             <div className="flex flex-row gap-5 items-center mb-5">
                 {is_editing_title ? (
                     <input 
@@ -137,32 +137,38 @@ export function EditForm() {
                 }
                 {
                     is_edited && !is_editing_title ? 
-                        (<button
+                        (<bt-button
+                            size="xs"
+                            font-size="var(--text-sm)"
+                            confirm
+                            rounded
                             onClick={() => update_form()}
-                            className="text-black bg-green-300 shrink-0 my-5 px-3 hover:cursor-pointer"
                         >
                             save changes
-                        </button>
+                        </bt-button>
                         ) :
                         (<></>)
                 }
             </div>
 
-            <div className="flex flex-col gap-5 mb-5 pb-5 border-b-1 border-red-400">
+            <bt-stack style={{ marginBottom: "var(--s1)" }}>
                 {form.data.map((field, idx) => {
                     return (
                         <div key={idx}>
-                            <button 
+                            <bt-button 
+                                size="xs"
+                                font-size="var(--text-sm)"
+                                warning
+                                rounded
                                 onClick={() => remove_field(idx)}
-                                className="bg-red-400 hover:cursor-pointer px-1"
                             >
                                 remove
-                            </button>
+                            </bt-button>
                             <FormField {...{ ...field, is_preview: true }} />
                         </div>
                     )
                 })}
-            </div>
+            </bt-stack>
 
             <div
                 className="flex flex-col gap-2 align-center"
@@ -171,57 +177,62 @@ export function EditForm() {
                     new field options
                 </h3>
 
-                <label>
-                    header:
-                    <input 
-                        type="text"
-                        value={new_field_header}
-                        onChange={e => set_new_field_header(e.target.value)}
-                        className="w-full bg-white text-black block"
-                    />
-                </label>
-                <label>
-                    detail:
-                    <input 
-                        type="text"
-                        value={new_field_detail}
-                        onChange={e => set_new_field_detail(e.target.value)}
-                        className="w-full bg-white text-black block"
-                    />
-                </label>
-                <label>
-                    type:
-                    <select 
-                        value={selected_field_type} 
-                        onChange={(e) => {
-                            try {
-                                let input_type = InputType.parse(e.target.value)
-                                set_selected_field_type(input_type)
-                            } catch (error) {
-                                console.error(error)
-                            }
-                        }}
-                        className="w-full bg-white text-black block"
-                    >
-                        {Object.entries(InputType.enum).map(entry => {
-                            const [key, value] = entry
+                <bt-stack>
+                    <label>
+                        header:
+                        <input 
+                            type="text"
+                            value={new_field_header}
+                            onChange={e => set_new_field_header(e.target.value)}
+                            className="w-full bg-white text-black block"
+                        />
+                    </label>
+                    <label>
+                        detail:
+                        <input 
+                            type="text"
+                            value={new_field_detail}
+                            onChange={e => set_new_field_detail(e.target.value)}
+                            className="w-full bg-white text-black block"
+                        />
+                    </label>
+                    <label>
+                        type:
+                        <select 
+                            value={selected_field_type} 
+                            onChange={(e) => {
+                                try {
+                                    let input_type = InputType.parse(e.target.value)
+                                    set_selected_field_type(input_type)
+                                } catch (error) {
+                                    console.error(error)
+                                }
+                            }}
+                            className="w-full bg-white text-black block"
+                        >
+                            {Object.entries(InputType.enum).map(entry => {
+                                const [key, value] = entry
 
-                            if (isNaN(parseInt(key))) {
-                                return (
-                                    <option key={key}>
-                                        {key}
-                                    </option>
-                                )
-                            }
-                        })}
-                    </select>
-                </label>
-                <button 
-                    className="shrink-0 w-fit text-black bg-green-300 my-5 px-3 hover:cursor-pointer"
-                    onClick={() => add_field()}
-                >
-                    add field
-                </button>
+                                if (isNaN(parseInt(key))) {
+                                    return (
+                                        <option key={key}>
+                                            {key}
+                                        </option>
+                                    )
+                                }
+                            })}
+                        </select>
+                    </label>
+                    <bt-button 
+                        size="xs"
+                        font-size="var(--text-sm)"
+                        confirm
+                        rounded
+                        onClick={() => add_field()}
+                    >
+                        add field
+                    </bt-button>
+                </bt-stack>
             </div>
         </div >
     )

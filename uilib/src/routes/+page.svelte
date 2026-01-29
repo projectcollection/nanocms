@@ -59,7 +59,7 @@
     <bt-box purple>
         <bt-sidebar content-min-width="70">
             <bt-cluster>
-                <h2 style="margin:0;">logo</h2>
+                <h2 style="margin:0">logo</h2>
                 <span style="font-size: var(--text-sm);"
                     >Mayor Brandon M. Scott</span
                 >
@@ -145,11 +145,104 @@
     </bt-cluster>
 </bt-box>
 
-<h2>The html source code using Web Components:</h2>
+<h2>Example usage of UI library distributed as Web Components:</h2>
+<p>
+    Web components are framework independent so it should be easy to distribute
+    and use in any web project. The consumer just need to add the css and
+    javascript file with the implementation to the head of the webpage, then use
+    components like normal html elements.
+</p>
+<p>
+    They can accept custom props like <b>React</b> components. Currently implemented
+    are layout components that affect how child elements are laid out. These components
+    should have as little state as possible and let the "main" framework handle state
+    management.
+</p>
+<p>Still unsure about the implications on accessibility.</p>
+
+<pre>
+    <code>
+        {@html hljs.highlight(
+            `<bt-link underscore animated href="#">some link</bt-link>`,
+            {
+                language: "html",
+            },
+        ).value}
+    </code>
+</pre>
+
+<p>The html code above will output:</p>
+
+<pre>
+    <code>
+        {@html hljs.highlight(
+            `<bt-link class="s-y_bCXRrkrYfP" data-i="bt-link-2oQcUI">
+            #shadow-root (open)
+            <a href="#" part="bt-link-2oQcUI">
+                <slot></slot>
+            </a>
+            some link
+        </bt-link>`,
+            {
+                language: "html",
+            },
+        ).value}
+    </code>
+</pre>
+
+<p>
+    The relevant part is <em>`data-i`</em> and <em>`part`</em> attributes. They
+    are used to apply css for a specific combination of property values. The
+    `::part()` selector is used for Web components that have a
+    <em>shadow dom</em>.
+</p>
+<p>
+    It will append this generated <em>style</em> in the <em>document head</em>
+    when it is mounted and there's no <em>style</em> tag with the same
+    <em>id</em>.
+</p>
+
+<pre>
+    <code>
+        {@html hljs.highlight(
+            `<style id="bt-link-2oQcUI">
+            [data-i=bt-link-2oQcUI], bt-link::part(bt-link-2oQcUI){
+                color: inherit;
+                display: inline-block;
+                font-size: var(--text-base);
+                font-weight: inherit;
+                line-height: var(--text-height-md);
+                position: relative;
+                text-decoration: none;
+                background-image: linear-gradient(var(--color-yellow), var(--color-yellow));
+                background-size: 0% calc(var(--text-base) * .2);
+                background-position: 0 88%;
+                background-repeat: no-repeat;
+                transition: background-size .2s ease-out;
+            }
+
+            [data-i=bt-link-2oQcUI]:hover, bt-link::part(bt-link-2oQcUI):hover{
+                cursor: pointer;
+                text-decoration: ;
+                background-size: 100% calc(var(--text-base) * .2);
+                transition: background-size .1s ease-in;
+            }
+        </style>`,
+            {
+                language: "css",
+            },
+        ).value}
+    </code>
+</pre>
+
+<p>
+    Below is the source code for the rough recreation of the
+    <em><b>beta.baltimorecity.gov</b></em> frontpage above.
+</p>
 
 <div style="border: 2px dashed black; margin: 0 var(--s0); overflow: auto;">
     <pre>
-<code>
+    <code>
 {@html hljs.highlight(
                 `<div style="position: sticky; top:0;">
         <bt-box

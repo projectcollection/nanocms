@@ -8,19 +8,21 @@ import { AuthLayout, Login, Protected, FormsList, EditForm, FormEntries, Entry, 
 createRoot(document.getElementById('root')!).render(
     <StrictMode>
         <BrowserRouter>
-            <Routes>
-                <Route index element={<App />} />
-                <Route path="auth" element={<AuthLayout />}>
-                    <Route path="login" element={<Login />} />
-                </Route>
-                <Route path='forms' element={<Protected />} >
-                    <Route index element={<FormsList />} />
-                    <Route path=":form_id/edit" element={<EditForm />} />
-                    <Route path=":form_id/entries" element={<FormEntries />} />
-                    <Route path=":form_id/entries/:entry_id" element={<Entry />} />
-                </Route>
-                <Route path="submit/:form_id" element={<PublicForm />} />
-            </Routes>
+            <div className="h-full">
+                <Routes>
+                    <Route index element={<App />} />
+                    <Route path="auth" element={<AuthLayout />}>
+                        <Route path="login" element={<Login />} />
+                    </Route>
+                    <Route path='forms' element={<Protected />} >
+                        <Route index element={<FormsList />} />
+                        <Route path=":form_id/edit" element={<EditForm />} />
+                        <Route path=":form_id/entries" element={<FormEntries />} />
+                        <Route path=":form_id/entries/:entry_id" element={<Entry />} />
+                    </Route>
+                    <Route path="submit/:form_id" element={<PublicForm />} />
+                </Routes>
+            </div>
         </BrowserRouter>
     </StrictMode >
     ,

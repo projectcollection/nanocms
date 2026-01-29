@@ -123,51 +123,43 @@ export function FormsList() {
 
 
     return (
-        <div className="w-full">
-            <div>
-                <button 
-                    onClick={() => create_form()}
-                    className="text-black bg-green-300 my-5 px-3 hover:cursor-pointer">
-                    new form
-                </button>
-            </div>
-            <div>
+        <>
+            <bt-box p0 bg-color="none">
+                <bt-button size="xs" font-size="var(--text-sm)" confirm rounded onClick={() => create_form()}>new form</bt-button>
+            </bt-box>
+            <br />
+            <>
                 <ul className="flex flex-col gap-2">
                     {forms.map((form, idx) => {
                         return (
                             <li key={`${form.id} + ${idx}`} className="flex gap-2 justify-between">
-                                <div className="flex gap-2">
+                                <bt-cluster space="var(--s-1)">
                                     <Link to={`/forms/${form.id}/edit`}>
-                                        <button className="text-black bg-gray-300 px-3 hover:cursor-pointer" >edit</button>
+                                        <bt-button size="xs" font-size="var(--text-sm)" rounded>edit</bt-button>
                                     </Link>
                                     <Link>
-                                        <button 
-                                            className="bg-red-400 px-3 hover:cursor-pointer"
-                                            onClick={() => { delete_form(idx) }}
-                                        >delete</button>
+                                        <bt-button size="xs" font-size="var(--text-sm)" warning rounded onClick={() => { delete_form(idx) }}>delete</bt-button>
                                     </Link>
                                     <Link to={`/submit/${form.id}`}>
-                                        <button
-                                            className="text-black bg-green-300 px-3 hover:cursor-pointer"
-                                        >share</button>
+                                        <bt-button size="xs" font-size="var(--text-sm)" confirm rounded>share</bt-button>
                                     </Link>
                                     <Link to={`/forms/${form.id}/entries`}>
-                                        <button
-                                            className="text-black bg-green-300 px-3 hover:cursor-pointer"
-                                        >entries</button>
+                                        <bt-button size="xs" font-size="var(--text-sm)" confirm rounded>entries</bt-button>
                                     </Link>
                                     <Link to={`/forms/${form.id}/entries`}>
                                         <span>{form.title} </span>
                                     </Link>
-                                </div>
-                                <span>
-                                    {form.updated_at && (new Date(form.updated_at)).toDateString()}
-                                </span>
+                                </bt-cluster>
+                                <bt-cluster>
+                                    <span>
+                                        {form.updated_at && (new Date(form.updated_at)).toDateString()}
+                                    </span>
+                                </bt-cluster>
                             </li>
                         )
                     })}
                 </ul>
-            </div>
-        </div>
+            </>
+        </>
     )
 }

@@ -90,7 +90,7 @@ export function FormEntries() {
     }, [form_id])
 
     return (
-        <div className="w-full mt-10">
+        <>
             <div>
                 <h1 className="text-3xl font-bold">
                     {form && form.title}
@@ -135,6 +135,6 @@ export function FormEntries() {
                     </tbody>
                 </table>
             </div>
-        </div>
+        </>
     )
 }

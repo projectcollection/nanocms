@@ -37,13 +37,13 @@ export function Protected() {
     }, [])
 
     return (
-        <div className="text-white mx-10 m-5">
+        <bt-center className="text-white my-10">
             <nav>
                 <NavLink to="/forms">
                     <Logo />
                 </NavLink>
             </nav>
             <Outlet />
-        </div>
+        </bt-center>
     )
 }

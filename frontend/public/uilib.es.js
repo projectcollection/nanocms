@@ -109,7 +109,7 @@ typeof window<"u"&&((window.__svelte??={}).v??=new Set).add("5");const Vn=2,Ie="
         border: ${o()||l(),"var(--border-thin)"} solid;
         ${o()||l()?"border-color: black":"border: none"};
         ${u()?"color: var(--color-white);":"inherit;"}
-        background-color: ${a()?"var(--color-white)":`${c()?c():u()?"var(--color-purple)":"var(--color-white)"}`};
+        background-color: ${a()?"var(--color-white)":`${u()?"var(--color-purple)":c()?c():"var(--color-white)"}`};
         border-radius: ${r()?".5em":"unset"};
         transition: background-color .1s ease-in, box-shadow .1s ease-in;
         overflow: hidden;
@@ -119,7 +119,7 @@ typeof window<"u"&&((window.__svelte??={}).v??=new Set).add("5");const Vn=2,Ie="
 
 
     </style>
-`.replace(/\s\s+/g,"").trim()),y(N,X)};R(H,N=>{document&&!document.getElementById(v(d))&&N(x)})}y(g,C)});var S=z($);{var B=g=>{var C=Bi(),H=rt(C);kt(H,h),Y(C),Q(()=>D(C,"data-i",v(d))),y(g,C)};R(S,g=>{h()&&g(B)})}return y(t,$),ct(p)}customElements.define("bt-box",St(Jn,{rounded:{attribute:"rounded",type:"Boolean"},p0:{attribute:"p-0",type:"Boolean"},p1:{attribute:"p-1",type:"Boolean"},b0:{attribute:"b-0",type:"Boolean"},b1:{attribute:"b-1",type:"Boolean"},hover:{attribute:"hover",type:"Boolean"},purple:{attribute:"purple",type:"Boolean"},bg_color:{attribute:"bg-color",type:"String"},children:{}},[],[],!1,t=>class extends t{constructor(){super()}connectedCallback(){super.connectedCallback();const e=this.shadowRoot?.host||this;htmx.process(e)}}));var Ni=st("<div><!></div>");function Kn(t,e){ut(e,!0);const n="bt-center",r=b(e,"padding"),i=b(e,"children");let s=O(()=>jt(n,{padding:r()}));const o=O(()=>zt(n,v(s)));wt(()=>{e.$$host&&(e.$$host.dataset.i=v(s))});var l={get padding(){return r()},set padding(h){r(h),m()},get children(){return i()},set children(h){i(h),m()}},a=j();Et("14xyq2a",h=>{var d=j(),f=z(d);{var p=$=>{var S=j(),B=z(S);Ct(B,()=>`
+`.replace(/\s\s+/g,"").trim()),y(N,X)};R(H,N=>{document&&!document.getElementById(v(d))&&N(x)})}y(g,C)});var S=z($);{var B=g=>{var C=Bi(),H=rt(C);kt(H,h),Y(C),Q(()=>D(C,"data-i",v(d))),y(g,C)};R(S,g=>{h()&&g(B)})}return y(t,$),ct(p)}customElements.define("bt-box",St(Jn,{rounded:{attribute:"rounded",type:"Boolean"},p0:{attribute:"p-0",type:"Boolean"},p1:{attribute:"p-1",type:"Boolean"},b0:{attribute:"b-0",type:"Boolean"},b1:{attribute:"b-1",type:"Boolean"},hover:{attribute:"hover",type:"Boolean"},bg_color:{attribute:"bg-color",type:"String"},purple:{},children:{}},[],[],!1,t=>class extends t{constructor(){super()}connectedCallback(){super.connectedCallback();const e=this.shadowRoot?.host||this;htmx.process(e)}}));var Ni=st("<div><!></div>");function Kn(t,e){ut(e,!0);const n="bt-center",r=b(e,"padding"),i=b(e,"children");let s=O(()=>jt(n,{padding:r()}));const o=O(()=>zt(n,v(s)));wt(()=>{e.$$host&&(e.$$host.dataset.i=v(s))});var l={get padding(){return r()},set padding(h){r(h),m()},get children(){return i()},set children(h){i(h),m()}},a=j();Et("14xyq2a",h=>{var d=j(),f=z(d);{var p=$=>{var S=j(),B=z(S);Ct(B,()=>`
     <style id="${v(s)}">
       ${v(o).nor} {
           display: block;

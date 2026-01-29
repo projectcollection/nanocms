@@ -76,8 +76,8 @@ export function Login() {
 
 
     return (
-        <div className="flex flex-col h-screen justify-center w-md m-auto">
-            <div className="flex-shrink">
+        <bt-center>
+            <bt-stack height="100%">
                 <h1 className="text-3xl font-bold text-white mb-5">
                     Login
                 </h1>
@@ -89,22 +89,25 @@ export function Login() {
                         handle_form_submission(form_data)
                     }
                 }}
-                    className="flex flex-col gap-3"
                 >
-                    <input 
-                        name="username" placeholder="username" 
-                        className="w-full bg-white text-black block"
-                    />
-                    <input 
-                        name="password" type="password" placeholder="password" 
-                        className="w-full bg-white text-black block"
-                    />
-                    <input 
-                        type="submit" value="login" disabled={is_pending} 
-                        className="shrink-0 w-min bg-green-300 px-3 cursor-pointer"
-                    />
+                    <bt-stack >
+                        <input 
+                            name="username" placeholder="username" 
+                            className="w-full bg-white text-black block"
+                        />
+                        <input 
+                            name="password" type="password" placeholder="password" 
+                            className="w-full bg-white text-black block"
+                        />
+
+                        <bt-button size="xs" font-size="var(--text-sm)" confirm rounded>
+                            <input 
+                                type="submit" value="login" disabled={is_pending} 
+                            />
+                        </bt-button>
+                    </bt-stack>
                 </form>
-            </div>
-        </div>
+            </bt-stack>
+        </bt-center>
     )
 }

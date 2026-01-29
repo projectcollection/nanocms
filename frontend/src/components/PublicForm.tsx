@@ -11,6 +11,8 @@ export function PublicForm() {
     const { form_id } = useParams()
     const [form, set_form] = useState<FormType | null>(null)
 
+    let form_el = useRef<HTMLFormElement | null>(null);
+
     async function handle_sumbit(form_data: FormData) {
         let data = [...form_data.entries()].map(entry => entry[1])
 
@@ -73,31 +75,32 @@ export function PublicForm() {
     }
 
     return (
-        <div className="w-screen max-w-md m-auto text-white mt-5 px-2">
-            <div className="mb-5">
-                <span className="text-3xl font-bold">
-                    {form ? form.title : 'new form'}
-                </span>
-            </div>
+        <bt-center className="text-white">
+            <span className="text-3xl font-bold">
+                {form ? form.title : 'new form'}
+            </span>
             <div className="flex flex-col gap-5 mb-5 pb-5">
                 {form.data.length === 0 && (<span className="text-red-500">no fields</span>)}
-                <form action={handle_sumbit}>
-                    <div className="flex flex-col gap-5 mb-5 pb-5">
+                <form action={handle_sumbit} ref={form_el}>
+                    <bt-stack className="pb-5">
                         {form.data.map((field, idx) => {
                             return (
                                 <FormField {...field} key={idx} />
                             )
                         })}
-                    </div>
-                    <button
-                        type="submit"
-                        className="text-black bg-green-300 px-3 hover:cursor-pointer disabled:cursor-auto"
-                        disabled={form.data.length === 0}
-                    >
+                    </bt-stack>
+                    {/* <button */}
+                    {/*     type="submit" */}
+                    {/*     className="text-black bg-green-300 px-3 hover:cursor-pointer disabled:cursor-auto" */}
+                    {/*     disabled={form.data.length === 0} */}
+                    {/* > */}
+                    {/*     submit */}
+                    {/* </button> */}
+                    <bt-button size="xs" font-size="var(--text-sm)" rounded confirm onClick={() => form_el.current.requestSubmit()}>
                         submit
-                    </button>
+                    </bt-button>
                 </form>
             </div>
-        </div>
+        </bt-center>
     )
 }

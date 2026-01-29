@@ -14,7 +14,11 @@ function App() {
             justify-center items-center
             ">
             <Logo />
-            <Link to="auth/login" className='text-black bg-green-300 px-3'>login</Link>
+            <Link to="auth/login">
+                <bt-button size="xs" font-size="var(--text-sm)" confirm rounded>
+                    login
+                </bt-button>
+            </Link>
         </div>
     )
 }
