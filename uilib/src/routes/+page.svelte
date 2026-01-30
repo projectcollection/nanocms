@@ -8,7 +8,6 @@
         Box,
         Cluster,
     } from "$lib/index.js";
-    import "$lib/reset.css";
     import "$lib/styles.css";
     import house_svg from "$lib/house.svg";
     import ticket from "$lib/ticket.svg";

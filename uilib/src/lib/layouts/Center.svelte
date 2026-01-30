@@ -17,10 +17,7 @@
 
                 connectedCallback() {
                     super.connectedCallback();
-
-                    const root = this.shadowRoot?.host || this;
-
-                    htmx.process(root);
+                    htmx_integrate(this);
                 }
             };
         },
@@ -29,7 +26,11 @@
 
 <script lang="ts">
     import type { Snippet } from "svelte";
-    import { identifier_create, selectors_create } from "../helpers.ts";
+    import {
+        identifier_create,
+        selectors_create,
+        htmx_integrate,
+    } from "../helpers.ts";
 
     const tag = "bt-center";
 

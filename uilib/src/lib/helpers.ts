@@ -12,3 +12,15 @@ export function identifier_create(tag: string, props: {}) {
     let hash = short_hash(stringified_keys)
     return `${tag}-${hash}`
 }
+
+//@ts-ignore
+//not sure what the type of custom_element is
+export function htmx_integrate(custom_element) {
+    const root = custom_element.shadowRoot?.host || custom_element;
+
+    //@ts-ignore
+    if (typeof htmx != 'undefined') {
+        //@ts-ignore
+        htmx.process(root);
+    }
+}
