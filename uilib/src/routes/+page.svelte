@@ -7,6 +7,7 @@
         Icon,
         Box,
         Cluster,
+        Switcher,
     } from "$lib/index.js";
     import "$lib/styles.css";
     import house_svg from "$lib/house.svg";
@@ -78,7 +79,7 @@
 
 <bt-box p1 bg-color="var(--color-white-off)">
     <h2>Popular Services</h2>
-    <bt-cluster>
+    <bt-switcher>
         {#each [0, 0, 0, 0, 0] as _}
             <bt-box rounded hover bg-color="var(--color-blue-light)">
                 <bt-stack>
@@ -93,7 +94,7 @@
                 </bt-stack>
             </bt-box>
         {/each}
-    </bt-cluster>
+    </bt-switcher>
 </bt-box>
 
 <bt-box p1 bg-color="var(--color-yellow-pale)">
@@ -121,10 +122,10 @@
 
 <bt-box p1 bg-color="var(--color-white-off)">
     <h2>Programs and Initiatives</h2>
-    <bt-cluster>
+    <bt-switcher>
         {#each [0, 0, 0, 0, 0] as _}
             <bt-box p0 rounded hover bg-color="var(--color-blue-light)">
-                <bt-stack style="max-inline-size: 15em;">
+                <bt-stack>
                     <img
                         src="https://s3.amazonaws.com/baltimorecity.gov.if-us-east-1/s3fs-public/2026-01/programs-initiatives-10-year.png"
                     />
@@ -141,7 +142,7 @@
                 </bt-stack>
             </bt-box>
         {/each}
-    </bt-cluster>
+    </bt-switcher>
 </bt-box>
 
 <bt-center>
